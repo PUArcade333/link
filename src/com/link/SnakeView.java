@@ -177,6 +177,8 @@ public class SnakeView extends TileView2 implements OnGestureListener {
     	loadTile(SQUIRREL_RIGHT, r.getDrawable(R.drawable.squirrel_right));
     	loadTile(SQUIRREL_UP, r.getDrawable(R.drawable.squirrel_up));
     	loadTile(SQUIRREL_DOWN, r.getDrawable(R.drawable.squirrel_down));
+    	
+    	gestureScanner = new GestureDetector(this);
     }
     
 

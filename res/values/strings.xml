@@ -19,4 +19,6 @@
   <string name="mode_lose_suffix">\nPress Up To Play</string>
 
     <string name="snake_layout_text_text"></string>
+
+    <string name="lobbytext">Unable to connect to lobby.</string>
 </resources>
