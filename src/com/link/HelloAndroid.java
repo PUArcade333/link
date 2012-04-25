@@ -29,6 +29,9 @@ import android.widget.*;
 public class HelloAndroid extends Activity {
 	private static final String TAG = HelloAndroid.class.getSimpleName();
 	private static final String AUTHCODE = "cos333";
+	
+	private String netid = "";
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,22 +51,26 @@ public class HelloAndroid extends Activity {
 		task.execute(new String[] { loginurl, netidIn, pwordIn });
     }
 
-    private class LoginViaPHP extends AsyncTask<String, String, String> {
+    private class LoginViaPHP extends AsyncTask<String, String, String[]> {
     	@Override
     	// check login credentials and returns true if login successful
-    	protected String doInBackground(String... params) {
+    	protected String[] doInBackground(String... params) {
     		String loginurl;
     		String netidIn;
     		String pwordIn;
     		String auth;
+    		
+    		String[] result = new String[2];
     		// get url/login/password from params
     		try {
 	    		loginurl = params[0];
 	    		netidIn = params[1];
 	    		pwordIn = params[2];
+	    		result[1] = netid; 
     		} catch (Exception e) {
     			e.printStackTrace();
-    			return "error";
+    			result[0] = "error";
+    			return result;
     		}
     		//System.out.println("attempting to login with: " + netidIn + ", " + pwordIn);
     		
@@ -86,7 +93,8 @@ public class HelloAndroid extends Activity {
     	        content = entity.getContent();
     	    } catch(Exception e){
     	        Log.e("log_tag","Error in internet connection " + e.toString());
-    	        return "error";
+    	        result[0] = "error";
+    			return result;
     	    }
     		//System.out.println("post successful");
     		
@@ -101,18 +109,23 @@ public class HelloAndroid extends Activity {
     	        content.close();
     		} catch(Exception e){
     	        Log.e("log_tag", "Error converting result " + e.toString());
-    	        return "error";
+    	        result[0] = "error";
+    			return result;
     	    }
-    		System.out.println(output);
-    		return output; // ensure non-null
+    		//System.out.println(output);
+    		result[0] = output;
+			return result;
     	}
     	@Override
     	// process result of login query (true or false)
-    	protected void onPostExecute(String result) {
+    	protected void onPostExecute(String results[]) {
     		final String loginsuccess = "yes"; // output from PHP to match
-    		if (result.equals(loginsuccess)) {
-    			//setContentView(R.layout.loggedin);
-    			loggedIn(result);
+    		//final String loginfailure = "error";
+    		String loginresult = results[0];
+    		String netid = results[1];
+    		if (loginresult.equals(loginsuccess)) {
+    			setNetid(netid);
+    			loggedIn(netid);
     		} else {
     			final TextView loginstatustxt = (TextView) findViewById(R.id.loginstatustxt);
     			loginstatustxt.setText("Login failed! Please try again or register.");
@@ -121,12 +134,15 @@ public class HelloAndroid extends Activity {
     	}
     }
 
-    private class RegisterViaPHP extends AsyncTask<String, String, String> {
-    	protected String doInBackground(String... params) {
+    private class RegisterViaPHP extends AsyncTask<String, String, String[]> {
+    	protected String[] doInBackground(String... params) {
     		String registerurl;
     		String netidIn;
     		String pwordIn;
     		String emailIn;
+    		
+    		String[] result = new String[2];
+    		
     		
     		// get url/login/password from params
     		try {
@@ -134,9 +150,12 @@ public class HelloAndroid extends Activity {
 	    		netidIn = params[1];
 	    		pwordIn = params[2];
 	    		emailIn = params[3];
+	    		
+	    		result[1] = netid;
     		} catch (Exception e) {
     			e.printStackTrace();
-    			return "error";
+    			result[0] = "error";
+    			return result;
     		}
     		System.out.println("attempting to register with: " + netidIn + ", " + pwordIn + ", " + emailIn);
     		
@@ -160,9 +179,10 @@ public class HelloAndroid extends Activity {
     	        content = entity.getContent();
     	    } catch(Exception e){
     	        Log.e("log_tag","Error in internet connection " + e.toString());
-    	        return "error";
+    	        result[0] = "error";
+    			return result;
     	    }
-    		System.out.println("post successful");
+    		//System.out.println("post successful");
     		
     		// try reading http response
     		String output = "";
@@ -175,15 +195,21 @@ public class HelloAndroid extends Activity {
     	        content.close();
     		} catch(Exception e){
     	        Log.e("log_tag", "Error converting result " + e.toString());
-    	        return "error";
+    	        result[0] = "error";
+    			return result;
     	    }
-    		Log.e("log_tag", "output: " + output);
-    		return output;
+    		//Log.e("log_tag", "output: " + output);
+    		result[0] = output;
+			return result;
     	}
-    	protected void onPostExecute(String result) {
+    	protected void onPostExecute(String... results) {
     		final String registersuccess = "yes";
-    		if (result.equals(registersuccess)) {
-    			loggedIn(result);
+    		//final String registerfailure = "error";
+    		String registerresult = results[0];
+    		String netid = results[1];
+    		if (registerresult.equals(registersuccess)) {
+    			setNetid(netid);
+    			loggedIn(netid);
     		} else {
     			final TextView registerstatustxt = (TextView) findViewById(R.id.registerstatustxt);
     			registerstatustxt.setText("Registration failed! Username already exists.");
@@ -192,16 +218,18 @@ public class HelloAndroid extends Activity {
     	}
     }
     
-    private void loggedIn(String result) {
+    private void loggedIn(String currnetid) {
     	setContentView(R.layout.loggedin);
     	final TextView welcomeuser = (TextView) findViewById(R.id.welcomeuser);
-        welcomeuser.setText("Welcome!");
+        welcomeuser.setText("Welcome, " + currnetid + "!");
         final Button startgame1 = (Button) findViewById(R.id.startgame1);
         startgame1.setOnClickListener(new View.OnClickListener() {
 			
 			public void onClick(View v) {
 		        Intent myIntent = new Intent(HelloAndroid.this, Linker.class);
-		        HelloAndroid.this.startActivity(myIntent); 					}
+		        myIntent.putExtra("netid", netid);
+		        HelloAndroid.this.startActivity(myIntent);
+		    }
 		});
     }
     // called when register button is clicked
@@ -238,6 +266,10 @@ public class HelloAndroid extends Activity {
         netidFromRegister.setText(netidIn);
         passwordFromRegister.setText(pwordIn);
     }
+    
+    public void setNetid(String netid) { // set this upon successful login/registration
+		this.netid = netid;
+	}
     
     public void backtologin(View v) {
     	setContentView(R.layout.main);
