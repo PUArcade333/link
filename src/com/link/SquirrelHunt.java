@@ -3,12 +3,14 @@ package com.link;
 import java.io.IOException;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.widget.TextView;
@@ -168,9 +170,16 @@ public class SquirrelHunt extends Activity implements OnGestureListener {
 		}
 	};
 
-	@Override
-	protected void onStop() {
-		System.exit(0);
+	
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	if (keyCode == KeyEvent.KEYCODE_BACK) {
+	    	Intent resultIntent = new Intent();
+	    	resultIntent.putExtra("score", score);
+	    	setResult(Activity.RESULT_OK, resultIntent);
+	    	this.finish();
+    	}
+    	System.out.println("backed");
+    	return super.onKeyDown(keyCode, event);
 	}
 
 //	@Override

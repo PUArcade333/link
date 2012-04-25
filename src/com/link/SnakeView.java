@@ -26,7 +26,10 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
+import android.view.GestureDetector.OnGestureListener;
 import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
@@ -35,9 +38,11 @@ import android.widget.TextView;
  * 
  * 
  */
-public class SnakeView extends TileView2 {
+public class SnakeView extends TileView2 implements OnGestureListener {
 
     private static final String TAG = "SnakeView";
+    private GestureDetector gestureScanner;
+	private final int sensitivity = 20;
 
     /**
      * Current mode of application: READY to run, RUNNING, or you have already
@@ -439,6 +444,9 @@ public class SnakeView extends TileView2 {
     }
 
     private void updateSnake() {
+    	if (mSnakeTrail.isEmpty())
+            mSnakeTrail.add(new Coordinate(mXTileCount/2, mYTileCount/2, SNAKE_TYPE));
+    	
     	if (invisCounter > 0) { // decrease counter with each move
     		invisCounter--;
     	}
@@ -610,5 +618,119 @@ public class SnakeView extends TileView2 {
         public String toString() {
             return "Coordinate: [" + x + "," + y + "]";
         }
-    }    
+    }
+    /** implementing touch **/
+  	@Override
+  	public boolean onTouchEvent(MotionEvent me) {
+  		return gestureScanner.onTouchEvent(me);
+  	}
+
+  	@Override
+  	public boolean onDown(MotionEvent e) {
+  		return true;
+  	}
+
+  	@Override
+  	public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+  			float velocityY) {
+  		return true;
+  	}
+
+  	@Override
+  	public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX,
+  			float distanceY) {
+
+  		boolean up = distanceY > sensitivity;
+  		boolean down =  distanceY < (-1 *sensitivity);
+  		boolean left = distanceX > sensitivity;
+  		boolean right = distanceX < (-1 * sensitivity);
+//  		boolean right = false;
+  		
+      	if (mMode == LOSE || mMode == READY) { // start game with any direction key
+      		if (up)
+      			initNewGame(NORTH);
+      		else if (down)
+      			initNewGame(SOUTH);
+      		else if (left)
+      			initNewGame(WEST);
+      		else if (right)
+      			initNewGame(EAST);
+      		
+              setMode(RUNNING);
+              update();
+              return true;
+      		
+      	}
+      	
+      	//up
+  		if (up) {
+  	        if (mMode == PAUSE) {
+  	            setMode(RUNNING);
+  	            update();
+  	        }
+  	        if (mDirection != SOUTH) {
+  	            mNextDirection = NORTH;
+  	        }
+  	        return true;
+  		}
+  		
+  		//down
+  		else if (down) {
+          	if (mMode == PAUSE) {
+                  setMode(RUNNING);
+                  update();
+              }
+              if (mDirection != NORTH) {
+                  mNextDirection = SOUTH;
+              }
+              return true;
+  		}
+
+  		//left
+  		else if (left) {
+          	if (mMode == PAUSE) {
+                  setMode(RUNNING);
+                  update();
+              }
+              if (mDirection != EAST) {
+                  mNextDirection = WEST;
+              }
+              return true;
+  		}
+
+  		//right
+  		else if (right) {
+          	if (mMode == PAUSE) {
+                  setMode(RUNNING);
+                  update();
+              }
+              if (mDirection != WEST) {
+                  mNextDirection = EAST;
+              }
+              return true;
+  		}
+  		
+  		return true;
+  	}
+
+  	@Override
+  	public void onLongPress(MotionEvent e) {
+  		return;
+  	}
+
+  	@Override
+  	public void onShowPress(MotionEvent e) {
+  		return;
+  	}
+
+  	@Override
+  	public boolean onSingleTapUp(MotionEvent e) {
+//      	if (mMode == LOSE || mMode == READY) { // start game with any direction key
+//      		initNewGame(NORTH); //default direction: NORTH    		
+//              setMode(RUNNING);
+//              update();
+//              return true;
+//      	}
+      	return true;
+  	}
 }
