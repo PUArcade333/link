@@ -337,10 +337,10 @@ public class HelloAndroid extends Activity {
     		// try reading http response
     		String output = "";
     		try {
-    			BufferedReader reader = new BufferedReader(new InputStreamReader(content,"iso-8859-1"), 8);
+    			BufferedReader reader = new BufferedReader(new InputStreamReader(content,"utf-8"), 8);
     	        String line;
     	        while((line = reader.readLine()) != null){
-    	            output += line;
+    	            output += line + "\n";
     	        }
     	        content.close();
     		} catch(Exception e){
