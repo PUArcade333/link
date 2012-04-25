@@ -88,7 +88,7 @@ public class SnakeView extends TileView2 {
      * milliseconds between snake movements. This will decrease as apples are
      * captured.
      */
-    private long mScore = 0;
+    private int mScore = 0;
     private int invisCounter = 0; // number of moves before tail becomes visible again
     private long mMoveDelay;
     /**
@@ -236,7 +236,7 @@ public class SnakeView extends TileView2 {
         mDirection = icicle.getInt("mDirection");
         mNextDirection = icicle.getInt("mNextDirection");
         mMoveDelay = icicle.getLong("mMoveDelay");
-        mScore = icicle.getLong("mScore");
+        mScore = icicle.getInt("mScore");
         mSnakeTrail = coordArrayToArrayList(icicle.getIntArray("mSnakeTrail"));
     }
 
@@ -256,7 +256,8 @@ public class SnakeView extends TileView2 {
     		case KeyEvent.KEYCODE_DPAD_RIGHT:
     			initNewGame(EAST);
     			break;
-    			default:
+			default:
+				return super.onKeyDown(keyCode, msg);
     		}
             setMode(RUNNING);
             update();
@@ -569,6 +570,10 @@ public class SnakeView extends TileView2 {
             index++;
         }
 
+    }
+    
+    public int getScore() {
+    	return mScore;
     }
 
     /**

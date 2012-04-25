@@ -17,7 +17,9 @@
 package com.link;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Window;
 import android.widget.TextView;
 
@@ -76,5 +78,15 @@ public class Snake extends Activity {
         //Store the game state
         outState.putBundle(ICICLE_KEY, mSnakeView.saveState());
     }
-
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+    	if (keyCode == KeyEvent.KEYCODE_BACK) {
+	    	Intent resultIntent = new Intent();
+	    	resultIntent.putExtra("score", mSnakeView.getScore());
+	    	setResult(Activity.RESULT_OK, resultIntent);
+	    	this.finish();
+    	}
+    	System.out.println("backed");
+    	return super.onKeyDown(keyCode, event);
+	}
 }

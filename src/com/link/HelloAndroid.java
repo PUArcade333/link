@@ -29,6 +29,8 @@ import android.widget.*;
 public class HelloAndroid extends Activity {
 	private static final String TAG = HelloAndroid.class.getSimpleName();
 	private static final String AUTHCODE = "cos333";
+	private final String loginurl = "http://webscript.princeton.edu/~pcao/cos333/dologin.php";
+	private final String registerurl = "http://webscript.princeton.edu/~pcao/cos333/doregister.php";
 	
 	private String netid = "";
 	
@@ -40,7 +42,6 @@ public class HelloAndroid extends Activity {
     }
     // called when login button is clicked
     public void doLogin(View v) {
-    	final String loginurl = "http://webscript.princeton.edu/~pcao/cos333/dologin.php";
     	
     	final EditText netidEdit = (EditText) findViewById(R.id.netidEntry);
         final EditText passwordEdit = (EditText) findViewById(R.id.passwordEntry);
@@ -66,7 +67,7 @@ public class HelloAndroid extends Activity {
 	    		loginurl = params[0];
 	    		netidIn = params[1];
 	    		pwordIn = params[2];
-	    		result[1] = netid; 
+	    		result[1] = netidIn; 
     		} catch (Exception e) {
     			e.printStackTrace();
     			result[0] = "error";
@@ -151,7 +152,7 @@ public class HelloAndroid extends Activity {
 	    		pwordIn = params[2];
 	    		emailIn = params[3];
 	    		
-	    		result[1] = netid;
+	    		result[1] = netidIn;
     		} catch (Exception e) {
     			e.printStackTrace();
     			result[0] = "error";
@@ -234,7 +235,7 @@ public class HelloAndroid extends Activity {
     }
     // called when register button is clicked
     public void doRegister(View v) {
-    	final String registerurl = "http://webscript.princeton.edu/~pcao/cos333/doregister.php";
+
     	
     	final EditText netidEdit = (EditText) findViewById(R.id.netidEntry);
         final EditText passwordEdit = (EditText) findViewById(R.id.passwordEntry);
