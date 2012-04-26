@@ -54,6 +54,7 @@ public class Linker extends Activity {
 			@Override
 			public void onClick(View v) {
 				setActivity("Playing Squirrel Hunt");
+
 		        Intent myIntent = new Intent(Linker.this, com.squirrel.SquirrelMain.class);
 		        Linker.this.startActivityForResult(myIntent, SQUIRRELHUNT_ID);
 			}
