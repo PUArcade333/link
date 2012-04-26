@@ -31,6 +31,8 @@ public class HelloAndroid extends Activity {
 	private static final String AUTHCODE = "cos333";
 	private final String loginurl = "http://webscript.princeton.edu/~pcao/cos333/dologin.php";
 	private final String registerurl = "http://webscript.princeton.edu/~pcao/cos333/doregister.php";
+	private final String updateactivityurl = "http://webscript.princeton.edu/~pcao/cos333/updateactivity.php";
+	private final String getlobbyurl = "http://webscript.princeton.edu/~pcao/cos333/getlobby.php";
 	
 	private String netid = "";
 	
@@ -59,7 +61,6 @@ public class HelloAndroid extends Activity {
     		String loginurl;
     		String netidIn;
     		String pwordIn;
-    		String auth;
     		
     		String[] result = new String[2];
     		// get url/login/password from params
@@ -126,7 +127,7 @@ public class HelloAndroid extends Activity {
     		String netid = results[1];
     		if (loginresult.equals(loginsuccess)) {
     			setNetid(netid);
-    			loggedIn(netid);
+    			loggedIn();
     		} else {
     			final TextView loginstatustxt = (TextView) findViewById(R.id.loginstatustxt);
     			loginstatustxt.setText("Login failed! Please try again or register.");
@@ -203,14 +204,14 @@ public class HelloAndroid extends Activity {
     		result[0] = output;
 			return result;
     	}
-    	protected void onPostExecute(String... results) {
+    	protected void onPostExecute(String results[]) {
     		final String registersuccess = "yes";
     		//final String registerfailure = "error";
     		String registerresult = results[0];
     		String netid = results[1];
     		if (registerresult.equals(registersuccess)) {
     			setNetid(netid);
-    			loggedIn(netid);
+    			loggedIn();
     		} else {
     			final TextView registerstatustxt = (TextView) findViewById(R.id.registerstatustxt);
     			registerstatustxt.setText("Registration failed! Username already exists.");
@@ -219,24 +220,189 @@ public class HelloAndroid extends Activity {
     	}
     }
     
-    private void loggedIn(String currnetid) {
+    private class UpdateActivityViaPHP extends AsyncTask<String, String, String[]> {
+    	protected String[] doInBackground(String... params) {
+    		String updateactivityurl;
+    		String netidIn;
+    		String activityIn;
+    		
+    		String[] result = new String[2];
+    		
+    		
+    		// get url/login/password from params
+    		try {
+	    		updateactivityurl = params[0];
+	    		netidIn = params[1];
+	    		activityIn = params[2];
+	    		
+	    		result[1] = activityIn;
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			result[0] = "error";
+    			return result;
+    		}
+    		System.out.println("attempting to update activity with: " + netidIn + ", " + activityIn);
+    		
+    		// set up login/password to be posted to PHP
+    		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+    		nameValuePairs.add(new BasicNameValuePair("netid", netidIn));
+    		nameValuePairs.add(new BasicNameValuePair("activity", activityIn));
+    		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
+    		
+    		InputStream content;
+    		
+    		// try getting http response
+    		try {
+    			// TODO: check for https functionality
+    	        HttpClient httpclient = new DefaultHttpClient();
+    	        HttpPost httppost = new HttpPost(updateactivityurl);	        
+    	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+    	        HttpResponse response = httpclient.execute(httppost);
+    	        HttpEntity entity = response.getEntity();
+    	        content = entity.getContent();
+    	    } catch(Exception e){
+    	        Log.e("log_tag","Error in internet connection " + e.toString());
+    	        result[0] = "error";
+    			return result;
+    	    }
+    		System.out.println("post successful");
+    		
+    		// try reading http response
+    		String output = "";
+    		try {
+    			BufferedReader reader = new BufferedReader(new InputStreamReader(content,"iso-8859-1"), 8);
+    	        String line;
+    	        while((line = reader.readLine()) != null){
+    	            output += line;
+    	        }
+    	        content.close();
+    		} catch(Exception e){
+    	        Log.e("log_tag", "Error converting result " + e.toString());
+    	        result[0] = "error";
+    			return result;
+    	    }
+    		Log.e("log_tag", "output: " + output);
+    		result[0] = output;
+			return result;
+    	}
+    	protected void onPostExecute(String results[]) {
+    		final String updatesuccess = "yes";
+    		//final String updatefailure = "error";
+    		String updateresult = results[0];
+    		String activity = results[1];
+    		if (updateresult.equals(updatesuccess)) {
+    			// success
+    			System.out.println("updated activity: " + activity);
+    		} else {
+    			// failure
+    			System.out.println("failed to update activity: " + activity);
+    		}
+    	}
+    }
+    
+    private class GetLobbyViaPHP extends AsyncTask<String, String, String[]> {
+    	protected String[] doInBackground(String... params) {
+    		String getlobbyurl;
+    		
+    		String[] result = new String[] { "error", "" }; // to be returned
+    		
+    		try {
+    			getlobbyurl = params[0];
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    			result[0] = "error";
+    			return result;
+    		}
+
+    		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+    		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
+    		
+    		InputStream content;
+    		
+    		// try getting http response
+    		try {
+    			// TODO: check for https functionality
+    	        HttpClient httpclient = new DefaultHttpClient();
+    	        HttpPost httppost = new HttpPost(getlobbyurl);	        
+    	        httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+    	        HttpResponse response = httpclient.execute(httppost);
+    	        HttpEntity entity = response.getEntity();
+    	        content = entity.getContent();
+    	    } catch(Exception e){
+    	        Log.e("log_tag","Error in internet connection " + e.toString());
+    	        result[0] = "error";
+    			return result;
+    	    }
+    		
+    		// try reading http response
+    		String output = "";
+    		try {
+    			BufferedReader reader = new BufferedReader(new InputStreamReader(content,"utf-8"), 8);
+    	        String line;
+    	        while((line = reader.readLine()) != null){
+    	            output += line + "\n";
+    	        }
+    	        content.close();
+    		} catch(Exception e){
+    	        Log.e("log_tag", "Error converting result " + e.toString());
+    	        result[0] = "error";
+    			return result;
+    	    }
+    		Log.e("log_tag", "output: " + output);
+    		result[0] = "yes";
+    		result[1] = output;
+			return result;
+    	}
+    	protected void onPostExecute(String results[]) { // print lobby results
+    		//final String lobbysuccess = "yes";
+    		final String lobbyfailure = "error";
+    		String lobbyresult = results[0];
+    		String lobbytext = results[1];
+    		System.out.println("got lobby: " + lobbytext);
+    		if (!lobbyresult.equals(lobbyfailure)) {
+    			// success
+    			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
+    			tv_lobby.setText(lobbytext);
+    		} else {
+    			// failure
+    			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
+    			tv_lobby.setText("Unable to connect to lobby.");
+    		}
+    	}
+    }
+    
+    // set up the lobby and start screen after logging in
+    private void loggedIn() {
     	setContentView(R.layout.loggedin);
     	final TextView welcomeuser = (TextView) findViewById(R.id.welcomeuser);
-        welcomeuser.setText("Welcome, " + currnetid + "!");
-        final Button startgame1 = (Button) findViewById(R.id.startgame1);
-        startgame1.setOnClickListener(new View.OnClickListener() {
-			
+        welcomeuser.setText("Welcome, " + netid + "!");
+        
+        UpdateActivityViaPHP task = new UpdateActivityViaPHP();
+		task.execute(new String[] { updateactivityurl, netid, "In Lobby" }); // set activity to in lobby
+		
+		GetLobbyViaPHP getlobby = new GetLobbyViaPHP();
+		getlobby.execute(new String[] { getlobbyurl });
+
+        
+        final Button startgames = (Button) findViewById(R.id.startgames);
+        startgames.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 		        Intent myIntent = new Intent(HelloAndroid.this, Linker.class);
 		        myIntent.putExtra("netid", netid);
-		        HelloAndroid.this.startActivity(myIntent);
+		        HelloAndroid.this.startActivityForResult(myIntent, -1);
 		    }
 		});
     }
+    // return to lobby when linker activity ends
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		
+		if (resultCode == RESULT_OK) {
+			loggedIn();
+       }
+	}
+    
     // called when register button is clicked
     public void doRegister(View v) {
-
-    	
     	final EditText netidEdit = (EditText) findViewById(R.id.netidEntry);
         final EditText passwordEdit = (EditText) findViewById(R.id.passwordEntry);
         final EditText confirmEdit = (EditText) findViewById(R.id.confirmEntry);

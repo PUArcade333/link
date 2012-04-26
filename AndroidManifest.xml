@@ -28,16 +28,16 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".SquirrelHunt"
+            android:name="com.squirrel.SquirrelMain"
             android:label="@string/app_name" >
             <intent-filter>
-                <action android:name=".SquirrelHunt" />
+                <action android:name=".SquirrelMain" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
-            android:name=".Snake"
+            android:name="com.snake.Snake"
             android:configChanges="keyboardHidden|orientation"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar" >
@@ -47,6 +47,27 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="puArcade.princetonTD.main.PrincetonTD"
+            android:label="@string/app_name" >
+            <intent-filter>
+                <action android:name=".PrincetonTD" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name="com.connectfour.Start"
+            android:configChanges="keyboardHidden|orientation"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name=".ConnectFour" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
-<uses-permission android:name="android.permission.INTERNET" />
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
 </manifest>
