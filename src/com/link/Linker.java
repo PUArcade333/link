@@ -20,25 +20,25 @@ import org.apache.http.message.BasicNameValuePair;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.TextView;
+
+import com.link.*;
 
 public class Linker extends Activity {
 	private static final String AUTHCODE = "cos333";
 	private final String sendscoreurl = "http://webscript.princeton.edu/~pcao/cos333/sendscore.php";
 	private final String updateactivityurl = "http://webscript.princeton.edu/~pcao/cos333/updateactivity.php";
 	// game ids
-	private final int SNAKE_ID = 0;
-	private final int SQUIRRELHUNT_ID = 1;
-	private final int TD_ID = 2;
-	private final int TABLES_ID = 3;
-	private final int CONNECT_ID = 4;
+	public static final int SNAKE_ID = 0;
+	public static final int SQUIRRELHUNT_ID = 1;
+	public static final int TD_ID = 2;
+	public static final int TABLES_ID = 3;
+	public static final int CONNECT_ID = 4;
 	
 	private final int NUM_GAMES = 5;
 	
@@ -92,7 +92,7 @@ public class Linker extends Activity {
 		setActivity("In Game Select");
     }
 	
-    private class UpdateActivityViaPHP extends AsyncTask<String, String, String[]> {
+    public class UpdateActivityViaPHP extends AsyncTask<String, String, String[]> {
     	protected String[] doInBackground(String... params) {
     		String updateactivityurl;
     		String netidIn;
@@ -199,17 +199,19 @@ public class Linker extends Activity {
 	// send score when each game activity ends
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		String gameid;
+		setActivity("In Game Select"); // game has ended
 		if (requestCode > NUM_GAMES) { return; }
 		if (resultCode == RESULT_OK) {
 			gameid = String.valueOf(requestCode); // check game id
 			Bundle result = data.getExtras();
-			String score = String.valueOf(result.getInt("score"));
-			// send the score
-			SendScoreViaPHP task = new SendScoreViaPHP();
-			task.execute(new String[] { sendscoreurl, netid, gameid, score });
-			
-			setActivity("In Game Select"); // game has ended
+			if (result != null) {
+				String score = String.valueOf(result.getInt("score"));
+				// send the score
+				SendScoreViaPHP task = new SendScoreViaPHP();
+				task.execute(new String[] { sendscoreurl, netid, gameid, score });
+			}
        }
+		
 	}
 	
 	private class SendScoreViaPHP extends AsyncTask<String, String, String[]> {

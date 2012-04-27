@@ -24,11 +24,19 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.*;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.connectfour.Connect;
 
 public class HelloAndroid extends Activity {
 	private static final String TAG = HelloAndroid.class.getSimpleName();
@@ -39,6 +47,13 @@ public class HelloAndroid extends Activity {
 	private final String getlobbyurl = "http://webscript.princeton.edu/~pcao/cos333/getlobby.php";
 	
 	private String netid = "";
+	
+	private boolean ready = false;
+	private boolean ready2 = false;
+	private boolean gameStart = false;
+	
+	private Connect connect = new Connect();
+	private RefreshHandler mRefreshHandler = new RefreshHandler();
 	
     /** Called when the activity is first created. */
     @Override
@@ -224,6 +239,10 @@ public class HelloAndroid extends Activity {
     	}
     }
     
+    private void setActivity(String newActivity) {
+		UpdateActivityViaPHP task = new UpdateActivityViaPHP();
+		task.execute(new String[] { updateactivityurl, netid, newActivity, getLocalIpAddress() }); // set activity to in lobby
+	}
     private class UpdateActivityViaPHP extends AsyncTask<String, String, String[]> {
     	protected String[] doInBackground(String... params) {
     		String updateactivityurl;
@@ -306,6 +325,25 @@ public class HelloAndroid extends Activity {
     	}
     }
     
+    public String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e("get ip error", ex.toString());
+        }
+        return null;
+    }
+    
+
+    
     private class GetLobbyViaPHP extends AsyncTask<String, String, String[]> {
     	protected String[] doInBackground(String... params) {
     		String getlobbyurl;
@@ -357,7 +395,7 @@ public class HelloAndroid extends Activity {
     		Log.e("log_tag", "output: " + output);
     		result[0] = "yes";
     		result[1] = output;
-			return result;
+        return result;
     	}
     	protected void onPostExecute(String results[]) { // print lobby results
     		//final String lobbysuccess = "yes";
@@ -365,10 +403,32 @@ public class HelloAndroid extends Activity {
     		String lobbyresult = results[0];
     		String lobbytext = results[1];
     		System.out.println("got lobby: " + lobbytext);
+    		
+    		String[] lobbydata = lobbytext.split(";");
+    		String[] netid = new String[lobbydata.length/3];
+    		String[] status = new String[lobbydata.length/3];
+    		String[] ip = new String[lobbydata.length/3];
+    		for (int i = 0; i < lobbydata.length/3; i++)
+    		{
+    			netid[i] = lobbydata[i*3];
+    			status[i] = lobbydata[i*3+1];
+    			ip[i] = lobbydata[i*3+2];
+    		}
+    		ArrayList<User> userList = new ArrayList<User>();
+
+            for (int i = 0; i < netid.length; i++) {
+                userList.add(new User(netid[i], status[i], ip[i]));
+            }
+    		
+    		
     		if (!lobbyresult.equals(lobbyfailure)) {
     			// success
-    			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
-    			tv_lobby.setText(lobbytext);
+//    			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
+//    			tv_lobby.setText(lobbytext);
+    			
+    			ListView lv_lobby = (ListView) findViewById(R.id.tv_lobby);
+    			lv_lobby.setAdapter(new UserAdapter(getApplicationContext(), R.layout.lobby_item, userList));
+    			
     		} else {
     			// failure
     			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
@@ -376,28 +436,15 @@ public class HelloAndroid extends Activity {
     		}
     	}
     }
-    public String getLocalIpAddress() {
-        try {
-            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
-                NetworkInterface intf = en.nextElement();
-                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
-                    InetAddress inetAddress = enumIpAddr.nextElement();
-                    if (!inetAddress.isLoopbackAddress()) {
-                        return inetAddress.getHostAddress().toString();
-                    }
-                }
-            }
-        } catch (SocketException ex) {
-            Log.e("get ip error", ex.toString());
-        }
-        return null;
-    }
-    
     // set up the lobby and start screen after logging in
     private void loggedIn() {
-        
-        UpdateActivityViaPHP task = new UpdateActivityViaPHP();
-		task.execute(new String[] { updateactivityurl, netid, "In Lobby", getLocalIpAddress() }); // set activity to in lobby
+    	// enables you to receive challenges
+		connect.initServer();
+		ready = false; ready2 = false;
+		gameStart = false;
+		mRefreshHandler.sleep(50);
+		
+        setActivity("In Lobby");
 		
 		setContentView(R.layout.loggedin);
     	final TextView welcomeuser = (TextView) findViewById(R.id.welcomeuser);
@@ -411,6 +458,15 @@ public class HelloAndroid extends Activity {
 			public void onClick(View v) {
 		        Intent myIntent = new Intent(HelloAndroid.this, Linker.class);
 		        myIntent.putExtra("netid", netid);
+		        HelloAndroid.this.startActivityForResult(myIntent, -1);
+		    }
+		});
+        final Button startmultigames = (Button) findViewById(R.id.startmultigames);
+        startmultigames.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+		        Intent myIntent = new Intent(HelloAndroid.this, MultiplayerLinker.class);
+		        myIntent.putExtra("netid", netid);
+		        myIntent.putExtra("opponentip", ""); // TODO: fix this
 		        HelloAndroid.this.startActivityForResult(myIntent, -1);
 		    }
 		});
@@ -470,5 +526,133 @@ public class HelloAndroid extends Activity {
     protected void onStop() {
     	Log.d(TAG, "stopping...");
     	super.onStop();
+    }
+    
+    class RefreshHandler extends Handler {
+
+    	@Override
+    	public void handleMessage(Message msg) {
+//    		connect.sendMsgFromServer(" ");
+  
+			if (ready && ready2 && !gameStart)
+			{
+				gameStart = true;
+
+				//start activity for server side of the game (challenged person)
+				
+//				setContentView(R.layout.game);
+//
+//				myConnectFour = (ConnectFourView) (findViewById(R.id.game));
+//				myConnectFour.setTextView((TextView) findViewById(R.id.status));
+////				checkButton = (Button) findViewById(R.id.check_button);
+////				checkButton.setOnClickListener(click);
+//				
+//				myConnectFour.setTurn(true);
+//				myConnectFour.setText("Game Start. Your move.");
+				
+//				checker();
+//				mRefreshHandler.sleep(50);
+			}
+
+    	}
+
+    	public void sleep(long delayMillis) {
+    		this.removeMessages(0);
+    		sendMessageDelayed(obtainMessage(0), delayMillis);
+    	}
+    };
+    
+    private void accept ()
+    {
+		if (!ready)
+		{
+			ready = true;
+			connect.sendMsgFromServer("ready");
+		}
+		
+		if (!ready2)
+		{
+			String input = "";
+			input = connect.getMsgToServer();
+
+			if (input == null) {
+				Log.d("Error", "Null");
+			} else if (input.equals("" + com.link.Linker.CONNECT_ID)) {
+				ready2 = true;
+				setActivity("Playing Connect Four");
+		        Intent myIntent = new Intent(HelloAndroid.this, com.connectfour.ConnectFourMainServer.class);
+		        HelloAndroid.this.startActivityForResult(myIntent, com.link.Linker.CONNECT_ID);
+			}
+		}
+
+    }
+    class User {
+        private String username;
+        private String status;
+        private String ipaddress;
+
+        public String getName() {
+            return username;
+        }
+        public String getIP() {
+            return ipaddress;
+        }
+        public void setIP(String newip) {
+            ipaddress = newip;
+        }
+        public void setName(String name) {
+            username = name;
+        }
+
+        public String getStatus() {
+            return status;
+        }
+
+        public void setStatus(String status) {
+            this.status = status;
+        }
+
+        public User(String name, String status, String newip) {
+            username = name;
+            this.status = status;
+            ipaddress = newip;
+        }
+    }
+    
+    public class UserAdapter extends ArrayAdapter<User> {
+        private ArrayList<User> items;
+        private UserViewHolder userHolder;
+
+        private class UserViewHolder {
+            TextView name;
+            TextView status; 
+        }
+
+        public UserAdapter(Context context, int tvResId, ArrayList<User> items) {
+            super(context, tvResId, items);
+            this.items = items;
+        }
+
+        @Override
+        public View getView(int pos, View convertView, ViewGroup parent) {
+            View v = convertView;
+            if (v == null) {
+                LayoutInflater vi = (LayoutInflater)getSystemService(LAYOUT_INFLATER_SERVICE);
+                v = vi.inflate(R.layout.lobby_item, null);
+                userHolder = new UserViewHolder();
+                userHolder.name = (TextView)v.findViewById(R.id.lobby_name);
+                userHolder.status = (TextView)v.findViewById(R.id.lobby_status);
+                v.setTag(userHolder);
+            } else userHolder = (UserViewHolder)v.getTag(); 
+
+            User user = items.get(pos);
+
+            if (user != null) {
+                userHolder.name.setText(user.getName());
+                userHolder.status.setText(user.getStatus());
+            }
+
+            return v;
+        }
     }
 }
