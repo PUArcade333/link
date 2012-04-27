@@ -3,7 +3,11 @@ package com.link;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -54,7 +58,8 @@ public class Linker extends Activity {
 			@Override
 			public void onClick(View v) {
 				setActivity("Playing Squirrel Hunt");
-		        Intent myIntent = new Intent(Linker.this, SquirrelHunt.class);
+
+		        Intent myIntent = new Intent(Linker.this, com.squirrel.SquirrelMain.class);
 		        Linker.this.startActivityForResult(myIntent, SQUIRRELHUNT_ID);
 			}
 		});
@@ -63,7 +68,7 @@ public class Linker extends Activity {
 			@Override
 			public void onClick(View v) {
 				setActivity("Playing Snake");
-		        Intent myIntent = new Intent(Linker.this, Snake.class);
+		        Intent myIntent = new Intent(Linker.this, com.snake.Snake.class);
 		        Linker.this.startActivityForResult(myIntent, SNAKE_ID);
 	        }
 		});
@@ -87,11 +92,12 @@ public class Linker extends Activity {
 		setActivity("In Game Select");
     }
 	
-	private class UpdateActivityViaPHP extends AsyncTask<String, String, String[]> {
+    private class UpdateActivityViaPHP extends AsyncTask<String, String, String[]> {
     	protected String[] doInBackground(String... params) {
     		String updateactivityurl;
     		String netidIn;
     		String activityIn;
+    		String phoneipIn;
     		
     		String[] result = new String[2];
     		
@@ -101,19 +107,20 @@ public class Linker extends Activity {
 	    		updateactivityurl = params[0];
 	    		netidIn = params[1];
 	    		activityIn = params[2];
-	    		
+	    		phoneipIn = params[3];
 	    		result[1] = activityIn;
     		} catch (Exception e) {
     			e.printStackTrace();
     			result[0] = "error";
     			return result;
     		}
-    		System.out.println("attempting to update activity with: " + netidIn + ", " + activityIn);
+    		System.out.println("attempting to update activity with: " + netidIn + ", " + activityIn + ", " + phoneipIn);
     		
     		// set up login/password to be posted to PHP
     		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
     		nameValuePairs.add(new BasicNameValuePair("netid", netidIn));
     		nameValuePairs.add(new BasicNameValuePair("activity", activityIn));
+    		nameValuePairs.add(new BasicNameValuePair("phoneip", phoneipIn));
     		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
     		
     		InputStream content;
@@ -169,8 +176,26 @@ public class Linker extends Activity {
     
 	private void setActivity(String newActivity) {
 		UpdateActivityViaPHP task = new UpdateActivityViaPHP();
-		task.execute(new String[] { updateactivityurl, netid, newActivity }); // set activity to in lobby
+		task.execute(new String[] { updateactivityurl, netid, newActivity, getLocalIpAddress() }); // set activity to in lobby
 	}
+	
+    public String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e("get ip error", ex.toString());
+        }
+        return null;
+    }
+    
 	// send score when each game activity ends
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		String gameid;

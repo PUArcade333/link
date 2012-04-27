@@ -3,7 +3,11 @@ package com.link;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -225,6 +229,7 @@ public class HelloAndroid extends Activity {
     		String updateactivityurl;
     		String netidIn;
     		String activityIn;
+    		String phoneipIn;
     		
     		String[] result = new String[2];
     		
@@ -234,19 +239,20 @@ public class HelloAndroid extends Activity {
 	    		updateactivityurl = params[0];
 	    		netidIn = params[1];
 	    		activityIn = params[2];
-	    		
+	    		phoneipIn = params[3];
 	    		result[1] = activityIn;
     		} catch (Exception e) {
     			e.printStackTrace();
     			result[0] = "error";
     			return result;
     		}
-    		System.out.println("attempting to update activity with: " + netidIn + ", " + activityIn);
+    		System.out.println("attempting to update activity with: " + netidIn + ", " + activityIn + ", " + phoneipIn);
     		
     		// set up login/password to be posted to PHP
     		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
     		nameValuePairs.add(new BasicNameValuePair("netid", netidIn));
     		nameValuePairs.add(new BasicNameValuePair("activity", activityIn));
+    		nameValuePairs.add(new BasicNameValuePair("phoneip", phoneipIn));
     		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
     		
     		InputStream content;
@@ -370,19 +376,35 @@ public class HelloAndroid extends Activity {
     		}
     	}
     }
+    public String getLocalIpAddress() {
+        try {
+            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+                NetworkInterface intf = en.nextElement();
+                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress = enumIpAddr.nextElement();
+                    if (!inetAddress.isLoopbackAddress()) {
+                        return inetAddress.getHostAddress().toString();
+                    }
+                }
+            }
+        } catch (SocketException ex) {
+            Log.e("get ip error", ex.toString());
+        }
+        return null;
+    }
     
     // set up the lobby and start screen after logging in
     private void loggedIn() {
-    	setContentView(R.layout.loggedin);
+        
+        UpdateActivityViaPHP task = new UpdateActivityViaPHP();
+		task.execute(new String[] { updateactivityurl, netid, "In Lobby", getLocalIpAddress() }); // set activity to in lobby
+		
+		setContentView(R.layout.loggedin);
     	final TextView welcomeuser = (TextView) findViewById(R.id.welcomeuser);
         welcomeuser.setText("Welcome, " + netid + "!");
         
-        UpdateActivityViaPHP task = new UpdateActivityViaPHP();
-		task.execute(new String[] { updateactivityurl, netid, "In Lobby" }); // set activity to in lobby
-		
-		GetLobbyViaPHP getlobby = new GetLobbyViaPHP();
+        GetLobbyViaPHP getlobby = new GetLobbyViaPHP();
 		getlobby.execute(new String[] { getlobbyurl });
-
         
         final Button startgames = (Button) findViewById(R.id.startgames);
         startgames.setOnClickListener(new View.OnClickListener() {
