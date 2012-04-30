@@ -387,7 +387,7 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 
 		if (connect != null)
 			connect.close();
-		System.exit(0);
+		//System.exit(0);
 	}
 
 	@Override
@@ -396,7 +396,7 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 
 		if (connect != null)
 			connect.close();
-		System.exit(0);
+		//System.exit(0);
 	}
 
 }

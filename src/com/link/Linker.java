@@ -34,6 +34,7 @@ public class Linker extends Activity {
 	private final String sendscoreurl = "http://webscript.princeton.edu/~pcao/cos333/sendscore.php";
 	private final String updateactivityurl = "http://webscript.princeton.edu/~pcao/cos333/updateactivity.php";
 	// game ids
+	//public static final int SCORES_ID = 5;
 	public static final int SNAKE_ID = 0;
 	public static final int SQUIRRELHUNT_ID = 1;
 	public static final int TD_ID = 2;
@@ -45,6 +46,7 @@ public class Linker extends Activity {
 	private Button button_squirrel;
 	private Button button_snake;
 	private Button button_lobby;
+	private Button button_scores;
 	
 	private String netid = "";
 	
@@ -70,6 +72,16 @@ public class Linker extends Activity {
 				setActivity("Playing Snake");
 		        Intent myIntent = new Intent(Linker.this, com.snake.Snake.class);
 		        Linker.this.startActivityForResult(myIntent, SNAKE_ID);
+	        }
+		});
+
+		button_scores = (Button) findViewById(R.id.view_highscores);
+		button_scores.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) { // get high scores
+				//setActivity("");
+		        Intent myIntent = new Intent(Linker.this, com.link.HighScores.class);
+		        Linker.this.startActivity(myIntent);
 	        }
 		});
 		

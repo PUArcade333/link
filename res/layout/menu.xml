@@ -17,7 +17,13 @@
         android:layout_height="wrap_content"
 
         android:text="Squirrel Hunt" />
+	<Button
+        android:id="@+id/view_highscores"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
 
+        android:text="View High Scores" />
+    
     <Button
         android:id="@+id/returntolobby"
         android:layout_width="fill_parent"
