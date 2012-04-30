@@ -7,17 +7,9 @@ import android.os.Message;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.widget.TextView;
-<<<<<<< HEAD
-
 import com.link.*;
 
 public class ConnectFourView extends ConnectFourTileView {
-=======
-import com.link.R;
-
-public class ConnectFourView extends TileView {
->>>>>>> 249aca5b01ff06c7e268697feeab40adc88a3374
-
 	/**
 	 * Current mode of application: READY to run, RUNNING, or you have already
 	 * lost. static final ints are used instead of an enum for performance
@@ -198,12 +190,8 @@ public class ConnectFourView extends TileView {
 			int yBlock = yTileNum - 1;
 			int xTile = (int) (((x - xOffset) / mTileSize));
 			int yTile = (int) (((y - yOffset - barOffset) / mTileSize));
-			
-<<<<<<< HEAD
+
 //			Log.d("XY", xTile + " " + yTile);
-=======
-			Log.d("XY", xTile + " " + yTile);
->>>>>>> 249aca5b01ff06c7e268697feeab40adc88a3374
 			
 			while (checkTile(xTile, yBlock))
 				yBlock--;
@@ -332,14 +320,11 @@ public class ConnectFourView extends TileView {
 	
 	public boolean checkTile(int x, int y)
 	{
-<<<<<<< HEAD
 		if (x < 0 || x >= xTileNum)
 			return true;
 		if (y < 0 || y >= yTileNum)
 			return true;
-		
-=======
->>>>>>> 249aca5b01ff06c7e268697feeab40adc88a3374
+
 		if(board[x][y] > 0)
 			return true;
 		

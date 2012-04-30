@@ -201,7 +201,6 @@ public class MultiplayerLinker extends Activity {
 	// send score when each game activity ends
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		String gameid;
-		setContentView(R.layout.multiplayermenu);
 		setActivity("In Multiplayer Game Select"); // game has ended
 		if (requestCode > NUM_GAMES) { return; }
 		if (resultCode == RESULT_OK) {

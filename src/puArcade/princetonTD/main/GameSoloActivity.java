@@ -1,6 +1,5 @@
 package puArcade.princetonTD.main;
 
-import com.link.R;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -15,6 +14,8 @@ import android.view.WindowManager;
 import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.ImageButton;
+
+import com.link.R;
 
 public class GameSoloActivity extends Activity implements OnClickListener {
 

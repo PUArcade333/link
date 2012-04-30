@@ -7,7 +7,7 @@
     <string name="passlabel">password: </string>
     <string name="loginlabel">Login</string>
     <string name="loggedintxt">Welcome to Princeton Arcade!</string>
-    <string name="playgame">Start!</string>
+    <string name="playgame">Start Single Player!</string>
     <string name="registerlabel">Register</string>
     <string name="loginstatus"/>
     <string name="confirmlabel">confirm: </string>
@@ -20,5 +20,5 @@
 
     <string name="snake_layout_text_text"></string>
 
-    <string name="lobbytext">Unable to connect to lobby.</string>
+    <string name="lobbytext"></string>
 </resources>

@@ -8,17 +8,15 @@
         android:id="@+id/welcomeuser"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-<<<<<<< HEAD
         android:text="@string/loggedintxt"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <ListView
         xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+android:id/tv_lobby"
+        android:id="@+android:id/lv_lobby"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="0.96" />
-=======
+        android:layout_weight="0.96"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:text="@string/loggedintxt" />
 
@@ -29,21 +27,12 @@
         android:text="@string/lobbytext"
         android:textColor="#CCFFCC"
         android:textAppearance="?android:attr/textAppearanceSmall" />
->>>>>>> 249aca5b01ff06c7e268697feeab40adc88a3374
 
     <Button
         android:id="@+id/startgames"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:text="@string/playgame" />
-<<<<<<< HEAD
-    
-    <Button
-        android:id="@+id/startmultigames"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Multiplayer" />
 
-=======
->>>>>>> 249aca5b01ff06c7e268697feeab40adc88a3374
+
 </LinearLayout>

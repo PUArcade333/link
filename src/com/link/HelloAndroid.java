@@ -22,18 +22,24 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.connectfour.Connect;
@@ -55,6 +61,8 @@ public class HelloAndroid extends Activity {
 	private Connect connect = new Connect();
 	private RefreshHandler mRefreshHandler = new RefreshHandler();
 	
+	private ArrayList<User> userList;
+	
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -72,7 +80,7 @@ public class HelloAndroid extends Activity {
         LoginViaPHP task = new LoginViaPHP();
 		task.execute(new String[] { loginurl, netidIn, pwordIn });
     }
-
+    
     private class LoginViaPHP extends AsyncTask<String, String, String[]> {
     	@Override
     	// check login credentials and returns true if login successful
@@ -341,7 +349,9 @@ public class HelloAndroid extends Activity {
         }
         return null;
     }
-    
+    public String getMyNetid() {
+    	return netid;
+    }
 
     
     private class GetLobbyViaPHP extends AsyncTask<String, String, String[]> {
@@ -395,7 +405,7 @@ public class HelloAndroid extends Activity {
     		Log.e("log_tag", "output: " + output);
     		result[0] = "yes";
     		result[1] = output;
-        return result;
+    		return result;
     	}
     	protected void onPostExecute(String results[]) { // print lobby results
     		//final String lobbysuccess = "yes";
@@ -414,7 +424,7 @@ public class HelloAndroid extends Activity {
     			status[i] = lobbydata[i*3+1];
     			ip[i] = lobbydata[i*3+2];
     		}
-    		ArrayList<User> userList = new ArrayList<User>();
+    		userList = new ArrayList<User>();
 
             for (int i = 0; i < netid.length; i++) {
                 userList.add(new User(netid[i], status[i], ip[i]));
@@ -426,13 +436,48 @@ public class HelloAndroid extends Activity {
 //    			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
 //    			tv_lobby.setText(lobbytext);
     			
-    			ListView lv_lobby = (ListView) findViewById(R.id.tv_lobby);
+    			ListView lv_lobby = (ListView) findViewById(R.id.lv_lobby);
     			lv_lobby.setAdapter(new UserAdapter(getApplicationContext(), R.layout.lobby_item, userList));
-    			
+    			lv_lobby.setOnItemClickListener(new OnItemClickListener() {
+                    public void onItemClick(AdapterView<?> parent, View view,
+                        final int position, long id) {
+                       
+                        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                       
+                        View pview = inflater.inflate(R.layout.lobby_connect, null, false);
+                        final PopupWindow pw = new PopupWindow(pview,200,200, true);
+                        pw.setBackgroundDrawable(new BitmapDrawable());
+                        pw.showAtLocation(findViewById(R.id.lv_lobby), Gravity.CENTER, 0, 0);
+                     
+                        Button challenge = (Button) pview.findViewById(R.id.lobby_challenge);
+                        challenge.setOnClickListener(new OnClickListener() {
+                            public void onClick(View v) {
+                                System.out.println("position: " + position);
+                                User u = userList.get(position);
+                                System.out.println("user: " + u.getName() + " status: " + u.getStatus() + " ip: " + u.getIP());
+                                // TODO: fix challenge
+                		        Intent myIntent = new Intent(HelloAndroid.this, MultiplayerLinker.class);
+                		        myIntent.putExtra("netid", getMyNetid());
+                		        myIntent.putExtra("opponentip", ""); // TODO: fix this
+                		        HelloAndroid.this.startActivityForResult(myIntent, -2);
+                		        pw.dismiss();
+
+                            }
+                        });
+                       
+                        Button cancel = (Button) pview.findViewById(R.id.lobby_cancel);
+                        cancel.setOnClickListener(new OnClickListener() {
+                            public void onClick(View v) {
+                                pw.dismiss();
+                            }
+                        });
+                    }
+                  });
     		} else {
     			// failure
     			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
     			tv_lobby.setText("Unable to connect to lobby.");
+    			tv_lobby.setTextColor(Color.RED);
     		}
     	}
     }
@@ -461,15 +506,17 @@ public class HelloAndroid extends Activity {
 		        HelloAndroid.this.startActivityForResult(myIntent, -1);
 		    }
 		});
+        /*
         final Button startmultigames = (Button) findViewById(R.id.startmultigames);
         startmultigames.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
 		        Intent myIntent = new Intent(HelloAndroid.this, MultiplayerLinker.class);
 		        myIntent.putExtra("netid", netid);
 		        myIntent.putExtra("opponentip", ""); // TODO: fix this
-		        HelloAndroid.this.startActivityForResult(myIntent, -1);
+		        HelloAndroid.this.startActivityForResult(myIntent, -2);
 		    }
 		});
+		*/
     }
     // return to lobby when linker activity ends
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

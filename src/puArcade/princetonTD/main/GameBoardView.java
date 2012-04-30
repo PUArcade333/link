@@ -1,6 +1,5 @@
 package puArcade.princetonTD.main;
 
-import com.link.R;
 import puArcade.princetonTD.towers.*;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -15,6 +14,8 @@ import android.view.View.OnTouchListener;
 import android.widget.TextView;
 import android.widget.ImageButton;
 import android.widget.Scroller;
+
+import com.link.R;
 
 public class GameBoardView extends SurfaceView implements 
 OnTouchListener, SurfaceHolder.Callback {

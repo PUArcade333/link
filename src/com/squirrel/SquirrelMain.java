@@ -1,5 +1,6 @@
 package com.squirrel;
 
+import com.link.*;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,8 +10,6 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.Window;
 import android.widget.TextView;
-
-import com.link.R;
 
 public class SquirrelMain extends Activity implements OnGestureListener {
 
@@ -48,7 +47,17 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 	public void onShowPress(MotionEvent e) {
 		return;
 	}
-
+	public boolean onKeyDown(int keyCode, KeyEvent msg) {
+    	if (keyCode == KeyEvent.KEYCODE_BACK) {
+    		mySquirrelView.setGameOver();
+    		System.out.println("pressed back!");
+    		Intent resultIntent = new Intent();
+    		resultIntent.putExtra("score", mySquirrelView.getScore());
+	    	setResult(Activity.RESULT_OK, resultIntent);
+	        finish();
+    	}
+    	return true;
+    }
 	@Override
 	public boolean onSingleTapUp(MotionEvent e) {
 		if (mySquirrelView != null)
@@ -82,22 +91,13 @@ public class SquirrelMain extends Activity implements OnGestureListener {
 		mySquirrelView.setText("Score: " + mySquirrelView.getScore());
 	}
 	
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-    	if (keyCode == KeyEvent.KEYCODE_BACK) {
-	    	Intent resultIntent = new Intent();
-	    	resultIntent.putExtra("score", mySquirrelView.getScore());
-	    	setResult(Activity.RESULT_OK, resultIntent);
-	    	this.finish();
-    	}
-//    	System.out.println("backed");
-    	return super.onKeyDown(keyCode, event);
+	
+	/*
+	@Override
+	protected void onStop() {
+		System.exit(0);
 	}
-
-	//	@Override
-//	protected void onStop() {
-//		System.exit(0);
-//	}
-
+	*/
 //	@Override
 //	protected void onPause() {
 //		System.exit(0);
