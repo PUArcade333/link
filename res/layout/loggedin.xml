@@ -27,7 +27,11 @@
         android:text="@string/lobbytext"
         android:textColor="#CCFFCC"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-
+	<Button
+        android:id="@+id/logout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Log Out" />
     <Button
         android:id="@+id/startgames"
         android:layout_width="fill_parent"

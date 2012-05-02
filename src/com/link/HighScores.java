@@ -66,9 +66,11 @@ public class HighScores extends Activity {
 	private class Score {
 		String netid;
 		String score;
-		public Score(String netid, String score) {
+		String gameid;
+		public Score(String gameid, String netid, String score) {
 			this.netid = netid;
 			this.score = score;
+			this.gameid = gameid;
 		}
 		public String getNetid() {
 			return netid;
@@ -76,18 +78,21 @@ public class HighScores extends Activity {
 		public String getScore() {
 			return score;
 		}
+		public String getGameid() {
+			return gameid;
+		}
 	}
 	
 	private class GetHighScoresViaPHP extends AsyncTask<String, String, String[]> {
     	protected String[] doInBackground(String... params) {
     		String getscoresurl;
-    		String gameid;
+    		//String gameid;
     		
     		String[] result = new String[] { "error", "" }; // to be returned
     		
     		try {
     			getscoresurl = params[0];
-    			gameid = params[1];
+    			//gameid = params[1];
     		} catch (Exception e) {
     			e.printStackTrace();
     			result[0] = "error";
@@ -96,7 +101,7 @@ public class HighScores extends Activity {
 
     		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
     		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
-    		nameValuePairs.add(new BasicNameValuePair("gameid", gameid));
+    		//nameValuePairs.add(new BasicNameValuePair("gameid", gameid));
     		
     		InputStream content;
     		
@@ -142,17 +147,19 @@ public class HighScores extends Activity {
     		System.out.println("got highscores: " + scorestext);
     		
     		String[] scoresdata = scorestext.split(";");
-    		String[] netid = new String[scoresdata.length/2];
-    		String[] score = new String[scoresdata.length/2];
-    		for (int i = 0; i < scoresdata.length/2; i++)
+    		String[] gameid = new String[scoresdata.length/3];
+    		String[] netid = new String[scoresdata.length/3];
+    		String[] score = new String[scoresdata.length/3];
+    		for (int i = 0; i < scoresdata.length/3; i++)
     		{
-    			netid[i] = scoresdata[i*2];
-    			score[i] = scoresdata[i*2+1];
+    			gameid[i] = scoresdata[i*3];
+    			netid[i] = scoresdata[i*3+1];
+    			score[i] = scoresdata[i*3+2];
     		}
     		scoreList = new ArrayList<Score>();
 
             for (int i = 0; i < netid.length; i++) {
-                scoreList.add(new Score(netid[i], score[i]));
+                scoreList.add(new Score(gameid[i], netid[i], score[i]));
             }
     		
     		

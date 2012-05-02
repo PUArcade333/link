@@ -23,7 +23,7 @@ public class PrincetonTD extends Activity implements OnClickListener {
 
 		// set layout
 		initWindow();
-		setContentView(R.layout.menu);
+		setContentView(R.layout.tdmenu);
 
 		// set click listeners
 		Button solo = (Button)findViewById(R.id.solo);
@@ -80,7 +80,7 @@ public class PrincetonTD extends Activity implements OnClickListener {
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {
 			Intent resultIntent = new Intent();
-			resultIntent.putExtra("SCORE", score);
+			resultIntent.putExtra("score", score);
 			setResult(Activity.RESULT_OK, resultIntent);
 			finish();
 		}

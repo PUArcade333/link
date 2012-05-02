@@ -47,6 +47,7 @@ public class Linker extends Activity {
 	private Button button_snake;
 	private Button button_lobby;
 	private Button button_scores;
+	private Button button_td;
 	
 	private String netid = "";
 	
@@ -72,6 +73,16 @@ public class Linker extends Activity {
 				setActivity("Playing Snake");
 		        Intent myIntent = new Intent(Linker.this, com.snake.Snake.class);
 		        Linker.this.startActivityForResult(myIntent, SNAKE_ID);
+	        }
+		});
+		
+		button_td = (Button) findViewById(R.id.start_princetontd);
+		button_td.setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				setActivity("Playing Tower Defense");
+		        Intent myIntent = new Intent(Linker.this, puArcade.princetonTD.main.PrincetonTD.class);
+		        Linker.this.startActivityForResult(myIntent, TD_ID);
 	        }
 		});
 

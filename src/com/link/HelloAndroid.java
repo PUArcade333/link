@@ -362,6 +362,7 @@ public class HelloAndroid extends Activity {
     		
     		try {
     			getlobbyurl = params[0];
+    			
     		} catch (Exception e) {
     			e.printStackTrace();
     			result[0] = "error";
@@ -370,6 +371,7 @@ public class HelloAndroid extends Activity {
 
     		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
     		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
+    		nameValuePairs.add(new BasicNameValuePair("netid", netid));
     		
     		InputStream content;
     		
@@ -506,6 +508,14 @@ public class HelloAndroid extends Activity {
 		        HelloAndroid.this.startActivityForResult(myIntent, -1);
 		    }
 		});
+        final Button logoutbtn = (Button) findViewById(R.id.logout);
+        logoutbtn.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				loggedOut();		
+			}
+		});
         /*
         final Button startmultigames = (Button) findViewById(R.id.startmultigames);
         startmultigames.setOnClickListener(new View.OnClickListener() {
@@ -562,8 +572,9 @@ public class HelloAndroid extends Activity {
     public void setNetid(String netid) { // set this upon successful login/registration
 		this.netid = netid;
 	}
-    
-    public void backtologin(View v) {
+    public void loggedOut() {
+    	netid = "";
+    	setActivity("Offline");
     	setContentView(R.layout.main);
     }
     protected void onDestroy() {

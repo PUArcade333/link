@@ -52,7 +52,7 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		initWindow();
 
-		setContentView(R.layout.main);
+		setContentView(R.layout.tdmain);
 		gbv = (GameBoardView)findViewById(R.id.surfaceView1);
 		gbv.requestFocusFromTouch();
 

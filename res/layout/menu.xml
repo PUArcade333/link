@@ -17,6 +17,13 @@
         android:layout_height="wrap_content"
 
         android:text="Squirrel Hunt" />
+    
+    <Button
+        android:id="@+id/start_princetontd"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+
+        android:text="Tower Defense" />
 	<Button
         android:id="@+id/view_highscores"
         android:layout_width="fill_parent"

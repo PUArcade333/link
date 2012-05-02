@@ -20,7 +20,7 @@
             android:id="@+id/returntolobby"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Back to Lobby" />
+            android:text="Back to Game Select" />
     </LinearLayout>
 
 </ScrollView>
