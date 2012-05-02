@@ -1,5 +1,6 @@
 package puArcade.princetonTD.main;
 
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 import puArcade.princetonTD.animations.Animation;
@@ -25,11 +26,18 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
+import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
+import android.widget.TextView;
+import android.widget.ImageButton;
 import android.widget.Scroller;
 
 public class GameThread extends Thread implements GameState {
@@ -63,8 +71,9 @@ public class GameThread extends Thread implements GameState {
 	private Player player;
 
 	private Tower activeTower;
+	private Tower selectTower;
 	private Enumeration<Creature> eCreatures;
-	
+
 
 	public GameThread(SurfaceHolder surfaceHolder, final int w, final int h, Context context) {
 
@@ -77,7 +86,7 @@ public class GameThread extends Thread implements GameState {
 
 		map.initialize();
 		WIDTH = map.getWidth();
-		HEIGHT = map.getHeight();  
+		HEIGHT = map.getHeight();
 		xOrigin = 0;
 		yOrigin = 0;
 
@@ -87,7 +96,7 @@ public class GameThread extends Thread implements GameState {
 
 		try{
 			team.addPlayer(player);
-		} 
+		}
 		catch (GameFullException e){
 			e.printStackTrace();
 		}
@@ -133,7 +142,7 @@ public class GameThread extends Thread implements GameState {
 				return true; // else won't work
 			}
 		});
-		
+
 		//------------------------------
 		// Get tower bitmaps
 		towerBM = new Bitmap[TowerType.getN()];
@@ -146,19 +155,9 @@ public class GameThread extends Thread implements GameState {
 	public void setActiveTower(Tower tower)
 	{
 		activeTower = tower;
+		selectTower = null;
 	}
 
-	public void acceleratorShaken() {
-		game.launchNewWave(player, team);
-	}
-
-	
-//	@Override
-//	public boolean onKeyDown(int keyCode, KeyEvent event) {
-//		game.launchNewWave(player, team);
-//		return super.onKeyDown(keyCode, event);
-//	}
-	
 	public boolean doOnKeyDown(int keyCode, KeyEvent event) {
 		game.launchNewWave(player, team);
 		return true;
@@ -179,6 +178,7 @@ public class GameThread extends Thread implements GameState {
 					activeTower.setY(yTouch-yOrigin);
 					activeTower.setOwner(player);
 					game.addTower(activeTower);
+					selectTower = activeTower;
 					activeTower = null;
 				}
 				catch (NoMoneyException e)
@@ -195,6 +195,32 @@ public class GameThread extends Thread implements GameState {
 				}
 			}
 		}
+		else
+		{
+			// select closest tower
+			for(Tower tower : game.getTowers())
+			{
+				if (selectTower == null)
+				{
+					selectTower = tower;
+				}
+				else
+				{
+					int xTouch = (int)event.getX() - selectTower.width()/2;
+					int yTouch = (int)event.getY() - selectTower.height()/2;
+					int oldDist = dist2(xTouch,yTouch,selectTower.x(),selectTower.y());
+					int newDist = dist2(xTouch,yTouch,tower.x(),tower.y());
+					if (newDist < oldDist)
+					{
+						selectTower = tower;
+					}
+				}
+			}
+		}
+	}
+
+	private int dist2(int x1, int y1, int x2, int y2) {
+		return (x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
 	}
 
 	public void setRunning(boolean b) {
@@ -233,30 +259,38 @@ public class GameThread extends Thread implements GameState {
 		canvas.drawBitmap(mapBM,xOrigin,yOrigin,null);
 
 
+		// draw tower range
+		if (selectTower != null)
+		{
+			//
+		}
+
+
 		// animations
 
 
-		//		// start and end zones
+		// // start and end zones
 		//
-		//		for(Team team : game.getTeams())
-		//		{
-		//			Rect r;
+		// for(Team team : game.getTeams())
+		// {
+		// Rect r;
 		//
-		//			if(team.getEndZone() != null)
-		//			{
-		//				r = team.getEndZone();
+		// if(team.getEndZone() != null)
+		// {
+		// r = team.getEndZone();
 		//
-		//				g2.setColor(team.getCouleur());
-		//				g2.fillRect(r.x+MARGES_CHATEAU, r.y+MARGES_CHATEAU, r.width-(2*MARGES_CHATEAU), r.height-(2*MARGES_CHATEAU)); 
-		//				g2.drawImage(I_CHATEAU, r.x, r.y, r.width, r.height, null);
-		//			}
-		//		}
+		// g2.setColor(team.getCouleur());
+		// g2.fillRect(r.x+MARGES_CHATEAU, r.y+MARGES_CHATEAU, r.width-(2*MARGES_CHATEAU), r.height-(2*MARGES_CHATEAU));
+		// g2.drawImage(I_CHATEAU, r.x, r.y, r.width, r.height, null);
+		// }
+		// }
 
 
 		// draw towers
 
 		for(Tower tower : game.getTowers())
 			drawTower(tower,canvas);
+
 
 
 		// draw creatures
@@ -270,80 +304,71 @@ public class GameThread extends Thread implements GameState {
 		}
 
 
-		//		traitTmp = g2.getStroke();
+		// // selected tower
 		//
-		//		
-		//		// selected tower
-		//		
-		//		if(towerSelectionnee != null)
-		//		{
-		//			drawRange(towerSelectionnee,g2,COULEUR_RAYON_PORTEE);
+		// if(towerSelectionnee != null)
+		// {
+		// drawRange(towerSelectionnee,g2,COULEUR_RAYON_PORTEE);
 		//
-		//			g2.setColor(COULEUR_SELECTION);
-		//			g2.setStroke(TRAIT_TILLE);
-		//			g2.drawRect(towerSelectionnee.getXi(), towerSelectionnee.getYi(),
-		//					(int) (towerSelectionnee.getWidth()),
-		//					(int) (towerSelectionnee.getHeight()));
-		//		}
+		// g2.setColor(COULEUR_SELECTION);
+		// g2.setStroke(TRAIT_TILLE);
+		// g2.drawRect(towerSelectionnee.getXi(), towerSelectionnee.getYi(),
+		// (int) (towerSelectionnee.getWidth()),
+		// (int) (towerSelectionnee.getHeight()));
+		// }
 		//
-		//		g2.setStroke(traitTmp);
-		//
-		//		
-		//		// tower ranges
-		//		
-		//		if(afficherRayonsDePortee)
-		//			for(Tower tower : game.getTowers())
-		//				drawRange(tower,g2,COULEUR_RAYON_PORTEE);
-		//
-		//		// animations
-		//		game.drawAnimations(g2, Animation.HEIGHT_AIR);
+		// g2.setStroke(traitTmp);
 		//
 		//
-		//		// added tower
-		//		
-		//		if(addedTower != null && sourisSurMap)
-		//		{
-		//			g2.drawImage(I_CADRILLAGE,addedTower.x-40,addedTower.y-40,null);
-		//
-		//			// modification de la transparence
-		//			setTransparence(ALPHA_TOUR_A_AJOUTER,g2);
-		//
-		//			// dessin de la tower
-		//			dessinerTower(addedTower,g2,false);
-		//
-		//			// positionnnable ou non
-		//			if(!game.laTowerPeutEtrePosee(addedTower))
-		//				drawRange(addedTower,g2,COULEUR_POSE_IMPOSSIBLE);
-		//			else
-		//				// affichage du rayon de portee
-		//				drawRange(addedTower,g2,COULEUR_RAYON_PORTEE);
-		//		}
-		//
-		//		
-		//		// paused
-		//		
-		//		if(game.isPaused())
-		//		{
-		//			setTransparence(0.3f, g2);
-		//			g2.setColor(Color.DARK_GRAY);
-		//			g2.fillRect(0, 0, WIDTH, HEIGHT);
-		//			setTransparence(1.0f, g2);
-		//
-		//			g2.setColor(Color.WHITE);
-		//			Font policeTmp = g2.getFont();
-		//			g2.setFont(GestionnaireDesPolices.POLICE_TITRE);
-		//			g2.drawString("[ PAUSE ]", WIDTH / 2 - 80, HEIGHT / 2 - 50);
-		//			g2.setFont(policeTmp);
-		//		}
+		// // animations
+		// game.drawAnimations(g2, Animation.HEIGHT_AIR);
 		//
 		//
-		//		if(afficherFps)
-		//		{
-		//			g2.setColor(Color.BLACK);
-		//			g2.drawString("fps : "+fps, 0, 12);
-		//			g2.setColor(Color.WHITE);
-		//			g2.drawString("fps : "+fps, 1, 12+1);
-		//		}
+		// // added tower
+		//
+		// if(addedTower != null && sourisSurMap)
+		// {
+		// g2.drawImage(I_CADRILLAGE,addedTower.x-40,addedTower.y-40,null);
+		//
+		// // modification de la transparence
+		// setTransparence(ALPHA_TOUR_A_AJOUTER,g2);
+		//
+		// // dessin de la tower
+		// dessinerTower(addedTower,g2,false);
+		//
+		// // positionnnable ou non
+		// if(!game.laTowerPeutEtrePosee(addedTower))
+		// drawRange(addedTower,g2,COULEUR_POSE_IMPOSSIBLE);
+		// else
+		// // affichage du rayon de portee
+		// drawRange(addedTower,g2,COULEUR_RAYON_PORTEE);
+		// }
+		//
+		//
+		// // paused
+		//
+		// if(game.isPaused())
+		// {
+		// setTransparence(0.3f, g2);
+		// g2.setColor(Color.DARK_GRAY);
+		// g2.fillRect(0, 0, WIDTH, HEIGHT);
+		// setTransparence(1.0f, g2);
+		//
+		// g2.setColor(Color.WHITE);
+		// Font policeTmp = g2.getFont();
+		// g2.setFont(GestionnaireDesPolices.POLICE_TITRE);
+		// g2.drawString("[ PAUSE ]", WIDTH / 2 - 80, HEIGHT / 2 - 50);
+		// g2.setFont(policeTmp);
+		// }
+		//
+		//
+		// if(afficherFps)
+		// {
+		// g2.setColor(Color.BLACK);
+		// g2.drawString("fps : "+fps, 0, 12);
+		// g2.setColor(Color.WHITE);
+		// g2.drawString("fps : "+fps, 1, 12+1);
+		// }
 
 	}
 
@@ -355,7 +380,7 @@ public class GameThread extends Thread implements GameState {
 
 		// tx.setRotate((float)(creature.getAngle()+Math.PI/2),(float)creature.width()/2,(float)creature.height()/2);
 		// tx.preTranslate((float)(xOrigin+creature.x()), (float)(yOrigin+creature.y()));
-		
+
 		activeCreatureBM = StringResources.toBitmap(context, creature.getImage());
 		canvas.drawBitmap(activeCreatureBM,xOrigin+creature.x(),yOrigin+creature.y(),null);
 	}
@@ -364,13 +389,13 @@ public class GameThread extends Thread implements GameState {
 
 		int bar = (int) (creature.width() * 1.5);
 		int xBar = (int) (creature.x() - (bar - creature.width()) / 2);
-		int yBar  = (int)(creature.y() + creature.height());
-		
+		int yBar = (int)(creature.y() + creature.height());
+
 		int left = xOrigin + xBar;
 		int top = yOrigin + yBar;
 		int right = xOrigin + xBar + bar;
 		int bottom = yOrigin + yBar+4;
-		
+
 		Paint paint = new Paint();
 		paint.setColor(creature.getOwner().getTeam().getColor());
 		canvas.drawRect(left, top, right, bottom, paint);
@@ -381,7 +406,7 @@ public class GameThread extends Thread implements GameState {
 	private void drawTower(Tower tower, Canvas canvas) {
 		canvas.drawBitmap(towerBM[TowerType.getTowerType(tower)-1],xOrigin+tower.x(),yOrigin+tower.y(),null);
 	}
-	
+
 	public int getScore()
 	{
 		return player.getScore();

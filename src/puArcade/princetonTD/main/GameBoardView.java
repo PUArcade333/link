@@ -1,5 +1,6 @@
 package puArcade.princetonTD.main;
 
+import com.link.R;
 import puArcade.princetonTD.towers.*;
 import android.content.Context;
 import android.util.AttributeSet;
@@ -15,9 +16,7 @@ import android.widget.TextView;
 import android.widget.ImageButton;
 import android.widget.Scroller;
 
-import com.link.R;
-
-public class GameBoardView extends SurfaceView implements 
+public class GameBoardView extends SurfaceView implements
 OnTouchListener, SurfaceHolder.Callback {
 
 	/*
@@ -31,12 +30,12 @@ OnTouchListener, SurfaceHolder.Callback {
 
 	/*
 	 * Reference to the thread which controls graphics/game control
-	 *  Will communicate to View through use of Handlers
+	 * Will communicate to View through use of Handlers
 	 */
 	private GameThread gameThread;
-	
 
-	public GameBoardView(Context context)  {
+
+	public GameBoardView(Context context) {
 		super(context);
 		this.context = context;
 		setFocusable(true);
@@ -113,17 +112,12 @@ OnTouchListener, SurfaceHolder.Callback {
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		return gameThread.doOnKeyDown(keyCode, event);
-//		if(event.getKeyCode() == KeyEvent.ACTION_DOWN){
-//			return gameThread.doOnKeyDown(keyCode, event);
-//		}
-//		else if(event.getKeyCode() == KeyEvent.KEYCODE_ENTER){
-//			return gameThread.doOnKeyDown(keyCode, event);
-//		}
-//		else{
-//			return super.onKeyDown(keyCode, event);
-//		}
-
+		if(event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER){
+			return gameThread.doOnKeyDown(keyCode, event);
+		}
+		else{
+			return super.onKeyDown(keyCode, event);
+		}
 	}
 
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
@@ -133,10 +127,6 @@ OnTouchListener, SurfaceHolder.Callback {
 	public void surfaceCreated(SurfaceHolder holder) {
 		gameThread.setRunning(true);
 		gameThread.start();
-	}
-
-	public void accelertatorShaken() {
-		gameThread.acceleratorShaken();
 	}
 
 	public void surfaceDestroyed(SurfaceHolder holder) {
@@ -179,8 +169,8 @@ OnTouchListener, SurfaceHolder.Callback {
 		else
 			return 0;
 	}
-	
-	
+
+
 	public void finish()
 	{
 		if (gameThread != null)

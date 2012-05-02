@@ -1,26 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/scroller"
+<TabHost xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@android:id/tabhost"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    android:fillViewport="true" >
+    android:layout_height="fill_parent" >
 
     <LinearLayout
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-		<LinearLayout
-		    android:id="@+id/highscores_layout"
-		    android:layout_width="fill_parent"
-		    android:layout_height="wrap_content"
-		    android:orientation="vertical">
-		    
-		</LinearLayout>
-        <Button
-            android:id="@+id/returntolobby"
+        android:layout_height="fill_parent"
+        android:orientation="vertical"
+        android:padding="5dp" >
+
+        <TabWidget
+            android:id="@android:id/tabs"
             android:layout_width="fill_parent"
+            android:layout_height="wrap_content" />
+
+        <FrameLayout
+            android:id="@android:id/tabcontent"
+            android:layout_width="fill_parent"
+            android:layout_height="374dp"
+            android:padding="5dp" >
+        </FrameLayout>
+
+        <Button
+            android:id="@+id/backtogames"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Back to Game Select" />
+            android:text="Back to Games" />
     </LinearLayout>
 
-</ScrollView>
+</TabHost>

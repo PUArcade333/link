@@ -80,7 +80,9 @@ public class HelloAndroid extends Activity {
         LoginViaPHP task = new LoginViaPHP();
 		task.execute(new String[] { loginurl, netidIn, pwordIn });
     }
-    
+    public void backtologin(View v) {
+    	setContentView(R.layout.main);
+    }
     private class LoginViaPHP extends AsyncTask<String, String, String[]> {
     	@Override
     	// check login credentials and returns true if login successful
