@@ -41,6 +41,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.connectfour.Connect;
 
@@ -97,6 +98,12 @@ public class HelloAndroid extends Activity {
 	    		loginurl = params[0];
 	    		netidIn = params[1];
 	    		pwordIn = params[2];
+	    		PasswordChecker pc = new PasswordChecker();
+	            if(!(pc.check(netidIn) && pc.check(pwordIn))) {
+	                Toast.makeText(HelloAndroid.this, "invalid netID or password", Toast.LENGTH_SHORT).show();
+	                result[0] = "invalid netid/password";
+	    			return result;
+	            }
 	    		result[1] = netidIn; 
     		} catch (Exception e) {
     			e.printStackTrace();
@@ -485,6 +492,7 @@ public class HelloAndroid extends Activity {
     		}
     	}
     }
+    
     // set up the lobby and start screen after logging in
     private void loggedIn() {
     	// enables you to receive challenges
@@ -518,21 +526,9 @@ public class HelloAndroid extends Activity {
 				loggedOut();		
 			}
 		});
-        /*
-        final Button startmultigames = (Button) findViewById(R.id.startmultigames);
-        startmultigames.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-		        Intent myIntent = new Intent(HelloAndroid.this, MultiplayerLinker.class);
-		        myIntent.putExtra("netid", netid);
-		        myIntent.putExtra("opponentip", ""); // TODO: fix this
-		        HelloAndroid.this.startActivityForResult(myIntent, -2);
-		    }
-		});
-		*/
     }
     // return to lobby when linker activity ends
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		
 		if (resultCode == RESULT_OK) {
 			loggedIn();
        }
@@ -549,11 +545,27 @@ public class HelloAndroid extends Activity {
         String confirmIn = confirmEdit.getText().toString();
         String emailIn = emailEdit.getText().toString();
         
+        final TextView registerstatustxt = (TextView) findViewById(R.id.registerstatustxt);
+        
         if (!pwordIn.equals(confirmIn)) { // check that passwords match
-        	final TextView registerstatustxt = (TextView) findViewById(R.id.registerstatustxt);
         	registerstatustxt.setText("Passwords do not match!");
         	registerstatustxt.setTextColor(Color.RED);
         	return;
+        }
+        EmailChecker ec = new EmailChecker();
+        PasswordChecker pc = new PasswordChecker();
+        if(!pc.check(netidIn)) {
+        	registerstatustxt.setText("Invalid netid.");
+        	registerstatustxt.setTextColor(Color.RED);
+        	return;
+        } else if (!pc.check(pwordIn)) {
+        	registerstatustxt.setText("Invalid password.");
+        	registerstatustxt.setTextColor(Color.RED);
+        	return;
+        } else if (!ec.check(emailIn)) {
+            registerstatustxt.setText("Invalid e-mail address.");
+        	registerstatustxt.setTextColor(Color.RED);
+            return;
         }
         RegisterViaPHP task = new RegisterViaPHP();
 		task.execute(new String[] { registerurl, netidIn, pwordIn, emailIn });

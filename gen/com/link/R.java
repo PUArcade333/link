@@ -107,7 +107,7 @@ containing a value of this type.
         public static final int lobby_name=0x7f05000c;
         public static final int lobby_status=0x7f05000d;
         public static final int loginstatustxt=0x7f050013;
-        public static final int logout=0x7f050010;
+        public static final int logout=0x7f050011;
         public static final int lv_lobby=0x01010000;
         public static final int multi=0x7f050042;
         public static final int netidEntry=0x7f050015;
@@ -129,7 +129,7 @@ containing a value of this type.
         public static final int start_snake=0x7f05001a;
         public static final int start_squirrel=0x7f05001b;
         public static final int start_text=0x7f05002d;
-        public static final int startgames=0x7f050011;
+        public static final int startgames=0x7f050010;
         public static final int status=0x7f050007;
         public static final int surfaceView1=0x7f050030;
         public static final int tdbutton1=0x7f050033;
