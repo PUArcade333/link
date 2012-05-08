@@ -35,6 +35,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.GestureDetector.OnGestureListener;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
@@ -57,7 +58,8 @@ public class SnakeView extends TileView implements OnGestureListener {
     public static final int READY = 1;
     public static final int RUNNING = 2;
     public static final int LOSE = 3;
-    private int mMode = READY;
+    public static final int INSTRUCTIONS = 4;
+    private int mMode = INSTRUCTIONS;
 
     /**
      * Current direction the snake is headed.
@@ -98,6 +100,7 @@ public class SnakeView extends TileView implements OnGestureListener {
      * captured.
      */
     private int mScore = 0;
+    private int maxScore = 0; // max score over all games in session
     private int invisCounter = 0; // number of moves before tail becomes visible again
     private long mMoveDelay;
     /**
@@ -110,6 +113,7 @@ public class SnakeView extends TileView implements OnGestureListener {
      * mStatusText: text shows to the user in some run states
      */
     private TextView mStatusText;
+    private TextView scoreText;
 
     /**
      * mSnakeTrail: a list of Coordinates that make up the snake's body
@@ -183,11 +187,14 @@ public class SnakeView extends TileView implements OnGestureListener {
     	loadTile(SQUIRREL_DOWN, r.getDrawable(R.drawable.squirrel_down));
 
 		gestureScanner = new GestureDetector(this);
+		
+		
     
     }
     
 
     private void initNewGame(int DIRECTION) {
+    	
         mSnakeTrail.clear();
         mAcornList.clear();
 
@@ -201,7 +208,7 @@ public class SnakeView extends TileView implements OnGestureListener {
         addRandomAcorn(rndAcornType());
         addRandomAcorn(rndAcornType());
 
-        mMoveDelay = 600;
+        mMoveDelay = 400;
         mScore = 0;
     }
 
@@ -252,7 +259,7 @@ public class SnakeView extends TileView implements OnGestureListener {
         mSnakeTrail = coordArrayToArrayList(icicle.getIntArray("mSnakeTrail"));
     }
     public int getScore() {
-    	return mScore;
+    	return Math.max(mScore, maxScore);
     }
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent msg) {
@@ -260,7 +267,12 @@ public class SnakeView extends TileView implements OnGestureListener {
     		System.out.println("registered back");
     		return super.onKeyDown(keyCode, msg);
     	}
+    	
+    	if (mMode == INSTRUCTIONS) {
+			return super.onKeyDown(keyCode, msg);
+		}
     	if (mMode == LOSE || mMode == READY) { // start game with any direction key
+    		System.out.println("trying to start game!");
     		switch(keyCode) {
     		case KeyEvent.KEYCODE_DPAD_UP:
     			initNewGame(NORTH);
@@ -330,28 +342,33 @@ public class SnakeView extends TileView implements OnGestureListener {
     public void setTextView(TextView newView) {
         mStatusText = newView;
     }
-
+    public void setScoreTextView(TextView newView) {
+    	scoreText = newView;
+    }
     public void setMode(int newMode) {
         int oldMode = mMode;
         mMode = newMode;
 
         if (newMode == RUNNING & oldMode != RUNNING) {
             mStatusText.setVisibility(View.INVISIBLE);
+            scoreText.setText("Score: " + mScore);
             update();
             return;
         }
 
         Resources res = getContext().getResources();
         CharSequence str = "";
-        if (newMode == PAUSE) {
-            str = res.getText(R.string.mode_pause);
-        }
-        if (newMode == READY) {
-            str = res.getText(R.string.mode_ready);
-        }
         if (newMode == LOSE) {
             str = res.getString(R.string.mode_lose_prefix) + mScore
                   + res.getString(R.string.mode_lose_suffix);
+            scoreText.setText("--Game Over!-- Score: " + mScore);
+            maxScore = Math.max(maxScore, mScore); // update high score
+        } else if (newMode == PAUSE) {
+            str = res.getText(R.string.mode_pause);
+            scoreText.setText("--Paused-- Score: " + mScore);
+        } else if (newMode == READY) {
+            str = res.getText(R.string.mode_ready);
+            scoreText.setText("Score: " + mScore);
         }
 
         mStatusText.setText(str);
@@ -424,10 +441,10 @@ public class SnakeView extends TileView implements OnGestureListener {
                 updateSnake();
                 updateApples();
                 mLastMove = now;
+                scoreText.setText("Score: " + mScore);
             }
             mRedrawHandler.sleep(mMoveDelay);
         }
-
     }
 
     /**
@@ -530,10 +547,12 @@ public class SnakeView extends TileView implements OnGestureListener {
             	case INVIS_ACORN:
             		mScore+=10;
             		invisCounter += 10;
+            		addRandomAcorn(rndAcornType());
             		break;
             	case CUT_ACORN:
             		mScore+=10;
             		cutAcorn = true;
+            		addRandomAcorn(rndAcornType());
             		break;
             	default: // regular acorn
                     mMoveDelay *= 0.95;
@@ -654,6 +673,10 @@ public class SnakeView extends TileView implements OnGestureListener {
 		boolean left = distanceX > sensitivity;
 		boolean right = distanceX < (-1 * sensitivity);
 //		boolean right = false;
+		
+		if (mMode == INSTRUCTIONS) {
+			return true;
+		}
 		
     	if (mMode == LOSE || mMode == READY) { // start game with any direction key
     		if (up)

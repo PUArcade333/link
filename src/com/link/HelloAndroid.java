@@ -3,6 +3,7 @@ package com.link;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
@@ -41,17 +42,20 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.PopupWindow;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.security.*;
 
 import com.connectfour.Connect;
 
 public class HelloAndroid extends Activity {
 	private static final String TAG = HelloAndroid.class.getSimpleName();
-	private static final String AUTHCODE = "cos333";
+	private static final String AUTHCODE = "cos333"; // authentication code to send to PHP for verification of source
 	private final String loginurl = "http://webscript.princeton.edu/~pcao/cos333/dologin.php";
 	private final String registerurl = "http://webscript.princeton.edu/~pcao/cos333/doregister.php";
 	private final String updateactivityurl = "http://webscript.princeton.edu/~pcao/cos333/updateactivity.php";
 	private final String getlobbyurl = "http://webscript.princeton.edu/~pcao/cos333/getlobby.php";
+	
+	private static final String md5salt = "cos333-salt";
 	
 	private String netid = "";
 	
@@ -62,7 +66,11 @@ public class HelloAndroid extends Activity {
 	private Connect connect = new Connect();
 	private RefreshHandler mRefreshHandler = new RefreshHandler();
 	
-	private ArrayList<User> userList;
+	private ArrayList<User> userList; // for lobby
+	
+	// registration parameters
+	private int passMinLength = 4, passMaxLength = 20;
+	private int netidMinLength = 4, netidMaxLength = 16;
 	
     /** Called when the activity is first created. */
     @Override
@@ -70,6 +78,30 @@ public class HelloAndroid extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
     }
+    // encode password using md5
+    private String encodePassword(String pass) {
+    	byte[] bytesOfMessage;
+    	String unencodedpass = md5salt + pass;
+    	String encodedpass = "";
+    	try {
+    		bytesOfMessage = unencodedpass.getBytes("UTF-8");
+    		MessageDigest md = MessageDigest.getInstance("MD5");
+    		byte[] digest = md.digest(bytesOfMessage);
+    		StringBuffer sb = new StringBuffer();
+    		for (int i = 0; i < digest.length; ++i) {
+    			sb.append(Integer.toHexString((digest[i] & 0xFF) | 0x100).substring(1,3));
+    		}
+    		encodedpass = sb.toString();
+    	} catch (UnsupportedEncodingException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	} catch (NoSuchAlgorithmException e) {
+    		// TODO Auto-generated catch block
+    		e.printStackTrace();
+    	}
+    	return encodedpass;
+    }
+    
     // called when login button is clicked
     public void doLogin(View v) {
     	
@@ -98,12 +130,14 @@ public class HelloAndroid extends Activity {
 	    		loginurl = params[0];
 	    		netidIn = params[1];
 	    		pwordIn = params[2];
-	    		PasswordChecker pc = new PasswordChecker();
-	            if(!(pc.check(netidIn) && pc.check(pwordIn))) {
-	                Toast.makeText(HelloAndroid.this, "invalid netID or password", Toast.LENGTH_SHORT).show();
+	    		PasswordChecker checkpass = new PasswordChecker(passMinLength, passMaxLength);
+	    		PasswordChecker checknetid = new PasswordChecker(netidMinLength, netidMaxLength);
+	            if(!checkpass.check(pwordIn) || !checknetid.check(netidIn)) {
+	                //Toast.makeText(HelloAndroid.this, "invalid netID or password", Toast.LENGTH_SHORT).show();
 	                result[0] = "invalid netid/password";
 	    			return result;
 	            }
+	            pwordIn = encodePassword(pwordIn);
 	    		result[1] = netidIn; 
     		} catch (Exception e) {
     			e.printStackTrace();
@@ -117,6 +151,8 @@ public class HelloAndroid extends Activity {
     		nameValuePairs.add(new BasicNameValuePair("netid", netidIn));
     		nameValuePairs.add(new BasicNameValuePair("pword", pwordIn));
     		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
+    		
+    		System.out.println("attempting to login with: " + netidIn + ", " + pwordIn);
     		
     		InputStream content;
     		
@@ -134,7 +170,7 @@ public class HelloAndroid extends Activity {
     	        result[0] = "error";
     			return result;
     	    }
-    		//System.out.println("post successful");
+    		System.out.println("post successful");
     		
     		// try reading http response
     		String output = "";
@@ -150,7 +186,7 @@ public class HelloAndroid extends Activity {
     	        result[0] = "error";
     			return result;
     	    }
-    		//System.out.println(output);
+    		System.out.println(output);
     		result[0] = output;
 			return result;
     	}
@@ -179,14 +215,13 @@ public class HelloAndroid extends Activity {
     		String pwordIn;
     		String emailIn;
     		
-    		String[] result = new String[2];
-    		
+    		String[] result = new String[2];    		
     		
     		// get url/login/password from params
     		try {
 	    		registerurl = params[0];
 	    		netidIn = params[1];
-	    		pwordIn = params[2];
+	    		pwordIn = encodePassword(params[2]);
 	    		emailIn = params[3];
 	    		
 	    		result[1] = netidIn;
@@ -195,7 +230,7 @@ public class HelloAndroid extends Activity {
     			result[0] = "error";
     			return result;
     		}
-    		System.out.println("attempting to register with: " + netidIn + ", " + pwordIn + ", " + emailIn);
+    		
     		
     		// set up login/password to be posted to PHP
     		ArrayList<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
@@ -203,7 +238,7 @@ public class HelloAndroid extends Activity {
     		nameValuePairs.add(new BasicNameValuePair("pword", pwordIn));
     		nameValuePairs.add(new BasicNameValuePair("email", emailIn));
     		nameValuePairs.add(new BasicNameValuePair("auth", AUTHCODE));
-    		
+    		System.out.println("attempting to register with: " + netidIn + ", " + pwordIn + ", " + emailIn);
     		InputStream content;
     		
     		// try getting http response
@@ -419,7 +454,6 @@ public class HelloAndroid extends Activity {
     		return result;
     	}
     	protected void onPostExecute(String results[]) { // print lobby results
-    		//final String lobbysuccess = "yes";
     		final String lobbyfailure = "error";
     		String lobbyresult = results[0];
     		String lobbytext = results[1];
@@ -443,10 +477,7 @@ public class HelloAndroid extends Activity {
     		
     		
     		if (!lobbyresult.equals(lobbyfailure)) {
-    			// success
-//    			final TextView tv_lobby = (TextView) findViewById(R.id.tv_lobby);
-//    			tv_lobby.setText(lobbytext);
-    			
+    			// success    			
     			ListView lv_lobby = (ListView) findViewById(R.id.lv_lobby);
     			lv_lobby.setAdapter(new UserAdapter(getApplicationContext(), R.layout.lobby_item, userList));
     			lv_lobby.setOnItemClickListener(new OnItemClickListener() {
@@ -472,7 +503,6 @@ public class HelloAndroid extends Activity {
                 		        myIntent.putExtra("opponentip", ""); // TODO: fix this
                 		        HelloAndroid.this.startActivityForResult(myIntent, -2);
                 		        pw.dismiss();
-
                             }
                         });
                        
@@ -553,12 +583,13 @@ public class HelloAndroid extends Activity {
         	return;
         }
         EmailChecker ec = new EmailChecker();
-        PasswordChecker pc = new PasswordChecker();
-        if(!pc.check(netidIn)) {
+        PasswordChecker checkpass = new PasswordChecker(passMinLength, passMaxLength);
+		PasswordChecker checknetid = new PasswordChecker(netidMinLength, netidMaxLength);
+        if(!checknetid.check(netidIn)) {
         	registerstatustxt.setText("Invalid netid.");
         	registerstatustxt.setTextColor(Color.RED);
         	return;
-        } else if (!pc.check(pwordIn)) {
+        } else if (!checkpass.check(pwordIn)) {
         	registerstatustxt.setText("Invalid password.");
         	registerstatustxt.setTextColor(Color.RED);
         	return;

@@ -89,7 +89,12 @@
 	        android:layout_height="fill_parent"
 	        android:inputType="text" />
 	</LinearLayout>
-    
+    <Button
+        android:id="@+id/goRegister"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="doRegister"
+        android:text="@string/registerlabel" />
     <Button
         android:id="@+id/back"
         android:layout_width="fill_parent"
@@ -97,11 +102,6 @@
         android:onClick="backtologin"
         android:text="Back" />
 
-    <Button
-        android:id="@+id/goRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="doRegister"
-        android:text="@string/registerlabel" />
+    
 
 </LinearLayout>

@@ -14,7 +14,7 @@ import android.widget.TextView;
 
 import com.link.R;
 
-public class PrincetonTD extends Activity implements OnClickListener {
+public class PrincetonTD extends Activity {
 
 	private int score = 0;
 
@@ -53,24 +53,13 @@ public class PrincetonTD extends Activity implements OnClickListener {
 
         }
 	};
-	
-	public void onClick(View arg0) {
-		if (arg0.getId() == R.id.solo) {
-			Intent newGame = new Intent(this, GameSoloActivity.class);
-			startActivityForResult(newGame, 0);
-		}
-		else if (arg0.getId() == R.id.multi) {
-			// not implemented
-			finish();
-		}
-	}
 
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent data) {
 		if (requestCode == 0) {
 			if (resultCode == RESULT_OK) {
 				TextView scoreText = (TextView)findViewById(R.id.score);
-				scoreText.setText("" + data.getIntExtra("SCORE",0));
+				scoreText.setText("" + data.getIntExtra("score",0));
 			}
 		}
 	}

@@ -31,6 +31,7 @@ import com.link.*;
 
 public class Linker extends Activity {
 	private static final String AUTHCODE = "cos333";
+	
 	private final String sendscoreurl = "http://webscript.princeton.edu/~pcao/cos333/sendscore.php";
 	private final String updateactivityurl = "http://webscript.princeton.edu/~pcao/cos333/updateactivity.php";
 	// game ids

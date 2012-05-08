@@ -24,7 +24,10 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.View;
 import android.view.Window;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 /**
@@ -39,6 +42,7 @@ import android.widget.TextView;
 public class Snake extends Activity {
 
     private SnakeView mSnakeView;
+    private ImageButton snakeInst;
     
     private static String ICICLE_KEY = "snake-view";
 
@@ -48,13 +52,24 @@ public class Snake extends Activity {
      * 
      */
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.snake_layout);
-
-        mSnakeView = (SnakeView) findViewById(R.id.snake);
+        snakeInst = (ImageButton) findViewById(R.id.snake_instructs);
+        snakeInst.setOnClickListener(new OnClickListener() {
+            public void onClick(View v) {
+            	snakeInst.setVisibility(View.INVISIBLE);
+            	startgame(savedInstanceState);
+            }
+        });
+        
+    }
+    private void startgame(Bundle savedInstanceState) {
+    	System.out.println("game initialized");
+    	mSnakeView = (SnakeView) findViewById(R.id.snake);
         mSnakeView.setTextView((TextView) findViewById(R.id.text));
+        mSnakeView.setScoreTextView((TextView) findViewById(R.id.snakescoreTV));
 
         if (savedInstanceState == null) {
             // We were just launched -- set up a new game
@@ -67,9 +82,8 @@ public class Snake extends Activity {
             } else {
                 mSnakeView.setMode(SnakeView.PAUSE);
             }
-        }
+        }        
     }
-
     @Override
     protected void onPause() {
         super.onPause();
