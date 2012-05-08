@@ -43,6 +43,7 @@ public class Snake extends Activity {
 
     private SnakeView mSnakeView;
     private ImageButton snakeInst;
+    private boolean started = false;
     
     private static String ICICLE_KEY = "snake-view";
 
@@ -67,6 +68,7 @@ public class Snake extends Activity {
     }
     private void startgame(Bundle savedInstanceState) {
     	System.out.println("game initialized");
+    	started = true;
     	mSnakeView = (SnakeView) findViewById(R.id.snake);
         mSnakeView.setTextView((TextView) findViewById(R.id.text));
         mSnakeView.setScoreTextView((TextView) findViewById(R.id.snakescoreTV));
@@ -88,7 +90,9 @@ public class Snake extends Activity {
     protected void onPause() {
         super.onPause();
         // Pause the game along with the activity
-        mSnakeView.setMode(SnakeView.PAUSE);
+        if (started == true) {
+			mSnakeView.setMode(SnakeView.PAUSE);
+		}
     }
 
     @Override
@@ -100,7 +104,11 @@ public class Snake extends Activity {
     	if (keyCode == KeyEvent.KEYCODE_BACK) {
     		System.out.println("pressed back!");
     		Intent resultIntent = new Intent();
-    		resultIntent.putExtra("score", mSnakeView.getScore());
+    		if (started == false) {
+    			resultIntent.putExtra("score", 0);
+    		} else {
+    			resultIntent.putExtra("score", mSnakeView.getScore());
+    		}
 	    	setResult(Activity.RESULT_OK, resultIntent);
 	        finish();
     	}

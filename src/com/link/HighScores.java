@@ -67,32 +67,32 @@ public class HighScores extends TabActivity {
 
 	    // Initialize a TabSpec for each tab and add it to the TabHost
 	    spec = tabHost.newTabSpec("snake").setIndicator("Snake",
-	                      res.getDrawable(R.drawable.game_icons))
+	                      res.getDrawable(R.drawable.game_icons0))
 	                  .setContent(intent);
 	    tabHost.addTab(spec);
 
 	    // Do the same for the other tabs
 	    intent = new Intent().setClass(this, GetScores1Activity.class);
 	    spec = tabHost.newTabSpec("squirrel").setIndicator("Squirrel Hunt",
-	                      res.getDrawable(R.drawable.game_icons))
+	                      res.getDrawable(R.drawable.game_icons1))
 	                  .setContent(intent);
 	    tabHost.addTab(spec);
 
 	    intent = new Intent().setClass(this, GetScores2Activity.class);
 	    spec = tabHost.newTabSpec("td").setIndicator("Tower Defense",
-	                      res.getDrawable(R.drawable.game_icons))
+	                      res.getDrawable(R.drawable.game_icons2))
 	                  .setContent(intent);
 	    tabHost.addTab(spec);
 	    
 	    intent = new Intent().setClass(this, GetScores3Activity.class);
 	    spec = tabHost.newTabSpec("tables").setIndicator("Tables",
-	                      res.getDrawable(R.drawable.game_icons))
+	                      res.getDrawable(R.drawable.game_icons3))
 	                  .setContent(intent);
 	    tabHost.addTab(spec);
 	    
 	    intent = new Intent().setClass(this, GetScores4Activity.class);
 	    spec = tabHost.newTabSpec("connect").setIndicator("Connnect 4",
-	                      res.getDrawable(R.drawable.game_icons))
+	                      res.getDrawable(R.drawable.game_icons4))
 	                  .setContent(intent);
 	    tabHost.addTab(spec);
 

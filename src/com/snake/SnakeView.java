@@ -191,7 +191,6 @@ public class SnakeView extends TileView implements OnGestureListener {
 		
     
     }
-    
 
     private void initNewGame(int DIRECTION) {
     	
