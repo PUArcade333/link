@@ -520,6 +520,7 @@ public class HelloAndroid extends Activity {
     			tv_lobby.setText("Unable to connect to lobby.");
     			tv_lobby.setTextColor(Color.RED);
     		}
+    		
     	}
     }
     
@@ -548,6 +549,18 @@ public class HelloAndroid extends Activity {
 		        HelloAndroid.this.startActivityForResult(myIntent, -1);
 		    }
 		});
+        
+        final Button refreshlobby = (Button) findViewById(R.id.refreshlobby);
+        refreshlobby.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				GetLobbyViaPHP getlobby = new GetLobbyViaPHP();
+				getlobby.execute(new String[] { getlobbyurl });
+			}
+		});
+        
         final Button logoutbtn = (Button) findViewById(R.id.logout);
         logoutbtn.setOnClickListener(new View.OnClickListener() {
 			
