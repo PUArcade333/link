@@ -283,11 +283,11 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		currentWave = map.getCreatureWave(indexCurrentWave);
 	}
 	
-	// Launch wave
-	public void launchWave(CreatureWave creatureWave)
+	// Wave has finished launching
+	public void waveHasLaunched(CreatureWave creatureWave)
 	{
 		if(gs != null)
-			gs.launchWave(creatureWave); 
+			gs.waveHasLaunched(creatureWave); 
 	}
 
 	// Launch Wave

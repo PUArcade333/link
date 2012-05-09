@@ -81,7 +81,7 @@ public class Grid_v1 implements Grid {
 	public synchronized ArrayList<Point> shortestPath(int xStart, int yStart, int xEnd, int yEnd)
 			throws PathNotFoundException, IllegalArgumentException
 			{
-		if (xStart >= WIDTH-xOffset || xEnd >= HEIGHT-xOffset
+		if (xStart >= WIDTH-xOffset || xEnd >= WIDTH-xOffset
 				|| xStart-xOffset < 0 || xEnd-xOffset < 0)
 			throw new IllegalArgumentException("Invalid x value");
 

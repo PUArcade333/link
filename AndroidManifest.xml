@@ -70,7 +70,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
+        <activity android:name="puArcade.princetonTD.main.GameInstructions"></activity><activity
             android:name="puArcade.princetonTD.main.GameSoloActivity"
             android:label="@string/app_name" >
             <intent-filter>
@@ -115,5 +115,6 @@
         <activity android:name="GetScores2Activity"></activity>
         <activity android:name="GetScores3Activity"></activity>
         <activity android:name="GetScores4Activity"></activity>
+        
     </application>
 </manifest>

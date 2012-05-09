@@ -10,8 +10,8 @@ public class TowerFire extends Tower {
 	public static final String IMAGE;
 	public static final String ICON;
 	public static final int MAX_LEVEL = 5;
-	private static final double RADIUS = 20.0;
 	public static final int PRICE = 120;
+	private static final double RADIUS = 20.0;
 	private static final String DESCRIPTION = ""; 
 	
 	static
@@ -60,7 +60,6 @@ public class TowerFire extends Tower {
 
 	@Override
 	protected void attack(Creature creature) {
-		creature.damaged(damage, owner);
 		game.addAnimation(new Fireball(game,this,creature,damage,RADIUS));
 	}
 

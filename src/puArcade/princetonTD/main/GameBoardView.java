@@ -169,6 +169,12 @@ OnTouchListener, SurfaceHolder.Callback {
 		else
 			return 0;
 	}
+	public boolean canPlaceTowers() {
+		if (gameThread != null)
+			return gameThread.canPlaceTowers();
+		else
+			return false;
+	}
 
 
 	public void finish()

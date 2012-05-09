@@ -16,7 +16,7 @@ public class Fireball extends Attack {
     
     static
     {
-        IMAGE   = "drawable/fireball.png";
+        IMAGE   = "drawable/fireball";
     }
     
     

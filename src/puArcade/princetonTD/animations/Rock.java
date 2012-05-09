@@ -20,7 +20,7 @@ public class Rock extends Attack {
     
     static
     {
-        IMAGE = "drawable/rock.png";
+        IMAGE = "drawable/rock";
     }
 
     public Rock(Game game, Tower attacker, Creature target, long damage,

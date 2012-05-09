@@ -11,12 +11,12 @@ public class Default extends Map
 {
 	public final static String BG_IMAGE;
 	public final static String MENU;
-	public final static String NAME = "defaultmap";
+	public final static String NAME = "mapcampus";
 
 	static
 	{
-		MENU    = "drawable/defaultmapmenu";
-		BG_IMAGE = "drawable/defaultmap";
+		MENU    = "drawable/mapdefaulticon";
+		BG_IMAGE = "drawable/mapdefault";
 	}
 
 	public Default (Game game) 

@@ -28,8 +28,8 @@ public class PrincetonTD extends Activity {
 		// set click listeners
 		Button solo = (Button)findViewById(R.id.solo);
 		solo.setOnClickListener(click);
-		Button multi = (Button)findViewById(R.id.multi);
-		multi.setOnClickListener(click);
+		Button instruct = (Button)findViewById(R.id.tdinstruct);
+		instruct.setOnClickListener(click);
 	}
 
 	private void initWindow() {
@@ -46,11 +46,10 @@ public class PrincetonTD extends Activity {
 				Intent newGame = new Intent(PrincetonTD.this, puArcade.princetonTD.main.GameSoloActivity.class);
 				startActivityForResult(newGame, 0);
 			}
-			else if (v.getId() == R.id.multi) {
-				// not implemented
-				finish();
+			else if (v.getId() == R.id.tdinstruct) {
+				Intent getInstruct = new Intent(PrincetonTD.this, puArcade.princetonTD.main.GameInstructions.class);
+				startActivityForResult(getInstruct, 0);
 			}
-
         }
 	};
 
@@ -58,7 +57,7 @@ public class PrincetonTD extends Activity {
 			Intent data) {
 		if (requestCode == 0) {
 			if (resultCode == RESULT_OK) {
-				TextView scoreText = (TextView)findViewById(R.id.score);
+				TextView scoreText = (TextView)findViewById(R.id.tdscore);
 				scoreText.setText("" + data.getIntExtra("score",0));
 			}
 		}

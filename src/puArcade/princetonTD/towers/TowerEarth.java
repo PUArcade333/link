@@ -1,11 +1,14 @@
 package puArcade.princetonTD.towers;
 
+import java.util.Enumeration;
+
 import puArcade.princetonTD.animations.Rock;
 import puArcade.princetonTD.creatures.Creature;
 import android.graphics.Color;
+import android.graphics.Point;
 
 public class TowerEarth extends Tower {
-	
+
 	public static final int COLOR;
 	public static final String IMAGE;
 	public static final String ICON;
@@ -13,14 +16,14 @@ public class TowerEarth extends Tower {
 	public static final int PRICE = 250;
 	private static final double RADIUS = 30;
 	private static final String DESCRIPTION = ""; 
-	
+
 	static
 	{
 		COLOR 	= Color.GREEN;
 		IMAGE   = "drawable/towerearth";
 		ICON    = "drawable/icontowerearth";
 	}
-	
+
 	public TowerEarth()
 	{
 		super( 	0,
@@ -39,7 +42,7 @@ public class TowerEarth extends Tower {
 
 		description = DESCRIPTION;
 	}
-	
+
 	@Override
 	public void upgrade() {
 		if(canUpgrade())
@@ -60,7 +63,6 @@ public class TowerEarth extends Tower {
 
 	@Override
 	protected void attack(Creature creature) {
-		creature.damaged(damage, owner);
 		game.addAnimation(new Rock(game,this,creature,damage,RADIUS));
 	}
 

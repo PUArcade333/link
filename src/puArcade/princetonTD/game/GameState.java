@@ -37,7 +37,7 @@ public interface GameState {
 	
 	// Waves
 	
-	public void launchWave(CreatureWave wave);
+	public void waveHasLaunched(CreatureWave wave);
 	
 	// Creatures
 	

@@ -12,7 +12,7 @@ public class Ice extends Attack {
 
 	static
 	{
-		IMAGE = "drawable/ice.png";
+		IMAGE = "drawable/ice";
 	}
 
 	public Ice(Game game, Tower attacker, Creature target, double coeffSlow,  long lengthSlow)
@@ -47,5 +47,5 @@ public class Ice extends Attack {
 			finished = true;
 		}
 	}
-
+	
 }

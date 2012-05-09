@@ -1,8 +1,11 @@
 package puArcade.princetonTD.towers;
 
+import java.util.Enumeration;
+
 import puArcade.princetonTD.animations.Canonball;
 import puArcade.princetonTD.creatures.Creature;
 import android.graphics.Color;
+import android.graphics.Point;
 
 public class TowerCanon extends Tower {
 
@@ -61,8 +64,7 @@ public class TowerCanon extends Tower {
 	@Override
 	protected void attack(Creature creature) {
 		angle = Math.PI/2+Math.atan2(creature.centerY() - centerY(), creature.centerX() - centerX());
-		creature.damaged(damage, owner);
-        game.addAnimation(new Canonball(game,this,creature,damage,RADIUS));
+		game.addAnimation(new Canonball(game,this,creature,damage,RADIUS));
 	}
 
 	@Override

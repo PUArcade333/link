@@ -311,7 +311,7 @@ public class CreatureManager implements Runnable {
 						}
 
 						if (ws != null)
-							ws.launchWave(wave); 
+							ws.waveHasLaunched(wave); 
 					}
 				}).start();
 

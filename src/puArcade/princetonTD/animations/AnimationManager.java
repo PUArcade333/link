@@ -63,64 +63,64 @@ public class AnimationManager implements Runnable {
 
     public void run()
     {
-//       inManagement = true;
-//
-//       ArrayList<Animation> deleteAnimations = new ArrayList<Animation>();
-//       Animation animation;
-//       
-//       while(inManagement)
-//       {
-//           timeLeft -= WAIT_TIME;
-//           
-//           if(timeLeft < 0)
-//           { 
-//
-//               timeLeft = this.random(10000, 20000);
-//           }
-//
-//           try
-//           {
-//               Enumeration<Animation> eAnimations = animations.elements();
-//               while(eAnimations.hasMoreElements())
-//               {
-//                   animation = eAnimations.nextElement();
-//
-//                   if(animation.isFinished())
-//                       deleteAnimations.add(animation);
-//                   else
-//                       animation.animate((long)(WAIT_TIME*game.getCoeffSpeed()));
-//               }
-//           }
-//           catch(NoSuchElementException nse)
-//           {
-//               System.err.println("Cannot find animation");
-//           }
-// 
-//           for(Animation deleteAnimation : deleteAnimations)
-//               animations.remove(deleteAnimation);
-//           deleteAnimations.clear();
-//         
-//           // pause
-//           try
-//           {
-//               synchronized (pause)
-//               {
-//                   if(paused)
-//                       pause.wait();
-//               } 
-//           } 
-//           catch (InterruptedException e1)
-//           {
-//               e1.printStackTrace();
-//           }
-//           
-//           try{
-//                Thread.sleep(WAIT_TIME);
-//           } 
-//           catch (InterruptedException e){
-//                e.printStackTrace();
-//           }
-//       }
+       inManagement = true;
+
+       ArrayList<Animation> deleteAnimations = new ArrayList<Animation>();
+       Animation animation;
+       
+       while(inManagement)
+       {
+           timeLeft -= WAIT_TIME;
+           
+           if(timeLeft < 0)
+           { 
+
+               timeLeft = this.random(10000, 20000);
+           }
+
+           try
+           {
+               Enumeration<Animation> eAnimations = animations.elements();
+               while(eAnimations.hasMoreElements())
+               {
+                   animation = eAnimations.nextElement();
+
+                   if(animation.isFinished())
+                       deleteAnimations.add(animation);
+                   else
+                       animation.animate((long)(WAIT_TIME*game.getCoeffSpeed()));
+               }
+           }
+           catch(NoSuchElementException nse)
+           {
+               System.err.println("Cannot find animation");
+           }
+ 
+           for(Animation deleteAnimation : deleteAnimations)
+               animations.remove(deleteAnimation);
+           deleteAnimations.clear();
+         
+           // pause
+           try
+           {
+               synchronized (pause)
+               {
+                   if(paused)
+                       pause.wait();
+               } 
+           } 
+           catch (InterruptedException e1)
+           {
+               e1.printStackTrace();
+           }
+           
+           try{
+                Thread.sleep(WAIT_TIME);
+           } 
+           catch (InterruptedException e){
+                e.printStackTrace();
+           }
+       }
     }
     
     private long random(int min, int max) {

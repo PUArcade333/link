@@ -60,7 +60,6 @@ public class TowerIce extends Tower {
 
 	@Override
 	protected void attack(Creature creature) {
-		creature.damaged(damage, owner);
 		game.addAnimation(new Iceball(game,this,creature,damage,COEFF_SLOW));
 	}
 

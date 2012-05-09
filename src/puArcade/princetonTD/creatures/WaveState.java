@@ -2,6 +2,6 @@ package puArcade.princetonTD.creatures;
 
 public interface WaveState {
 	
-	public void launchWave(CreatureWave creatureWave);
+	public void waveHasLaunched(CreatureWave creatureWave);
 	
 }

@@ -304,7 +304,7 @@ public abstract class Creature {
 	{
 		if(path != null && indexCurrentPath < path.size())
 		{   
-			double distance = getSpeed() * ((double) dt / 1000.0);
+			double distance = getSpeedSlowed() * ((double) dt / 1000.0);
 
 			while(distance > 0 && indexCurrentPath < path.size())
 			{

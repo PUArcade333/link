@@ -59,7 +59,6 @@ public class TowerArcher extends Tower {
 
 	public void attack(Creature creature)
 	{
-		creature.damaged(damage, owner);
 		game.addAnimation(new Arrow(game,this,creature,damage));
 	}
 

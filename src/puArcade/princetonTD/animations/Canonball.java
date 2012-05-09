@@ -16,7 +16,7 @@ public class Canonball extends Attack {
     
     static
     {
-        IMAGE = "drawable/canonball.png";
+        IMAGE = "drawable/canonball";
     }
     
     

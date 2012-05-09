@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 
 import puArcade.princetonTD.animations.Animation;
+import puArcade.princetonTD.animations.Ice;
 import puArcade.princetonTD.creatures.Creature;
 import puArcade.princetonTD.creatures.CreatureWave;
 import puArcade.princetonTD.exceptions.BlockedPathException;
@@ -14,6 +15,7 @@ import puArcade.princetonTD.game.Game;
 import puArcade.princetonTD.game.GameResult;
 import puArcade.princetonTD.game.GameSolo;
 import puArcade.princetonTD.game.GameState;
+import puArcade.princetonTD.maps.Campus;
 import puArcade.princetonTD.maps.Default;
 import puArcade.princetonTD.maps.Map;
 import puArcade.princetonTD.players.Player;
@@ -39,6 +41,7 @@ import android.view.SurfaceHolder;
 import android.widget.TextView;
 import android.widget.ImageButton;
 import android.widget.Scroller;
+import android.widget.Toast;
 
 public class GameThread extends Thread implements GameState {
 
@@ -58,6 +61,8 @@ public class GameThread extends Thread implements GameState {
 	private Bitmap activeCreatureBM;
 
 	private static final long SLEEP_TIME = 20;
+
+	private static final int SELECT_RANGE = 2500;	// squared
 
 	private final int WIDTH;
 	private final int HEIGHT;
@@ -81,7 +86,7 @@ public class GameThread extends Thread implements GameState {
 		this.surfaceHolder = surfaceHolder;
 
 		this.game = new GameSolo();
-		map = new Default(game);
+		map = new Campus(game);
 		mapBM = StringResources.toBitmap(context, map.getBgImage());
 
 		map.initialize();
@@ -187,29 +192,35 @@ public class GameThread extends Thread implements GameState {
 				}
 				catch (BlockedPathException e)
 				{
-
+					CharSequence text = "Cannot block path!";
+					Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+					toast.show();
 				}
 				catch (InaccessibleZoneException e)
 				{
-
+					CharSequence text = "Cannot place tower there!";
+					Toast toast = Toast.makeText(context, text, Toast.LENGTH_SHORT);
+					toast.show();
 				}
 			}
 		}
 		else
 		{
-			// select closest tower
+			// select closest tower in range
+			selectTower = null;
 			for(Tower tower : game.getTowers())
 			{
+				int xTouch = (int)event.getX() - tower.width()/2;
+				int yTouch = (int)event.getY() - tower.height()/2;
+				int newDist = dist2(xTouch-xOrigin,yTouch-yOrigin,tower.x(),tower.y());
 				if (selectTower == null)
 				{
-					selectTower = tower;
+					if (newDist < SELECT_RANGE)
+						selectTower = tower;
 				}
 				else
 				{
-					int xTouch = (int)event.getX() - selectTower.width()/2;
-					int yTouch = (int)event.getY() - selectTower.height()/2;
-					int oldDist = dist2(xTouch,yTouch,selectTower.x(),selectTower.y());
-					int newDist = dist2(xTouch,yTouch,tower.x(),tower.y());
+					int oldDist = dist2(xTouch-xOrigin,yTouch-yOrigin,selectTower.x(),selectTower.y());
 					if (newDist < oldDist)
 					{
 						selectTower = tower;
@@ -262,35 +273,22 @@ public class GameThread extends Thread implements GameState {
 		// draw tower range
 		if (selectTower != null)
 		{
-			//
+			Paint paint = new Paint();
+			paint.setColor(Color.RED);
+			paint.setAlpha(100);
+			canvas.drawCircle(xOrigin+selectTower.x()+selectTower.width()/2, 
+					yOrigin+selectTower.y()+selectTower.height()/2, 
+					(float) selectTower.getRange(), paint);
 		}
 
 
 		// animations
 
 
-		// // start and end zones
-		//
-		// for(Team team : game.getTeams())
-		// {
-		// Rect r;
-		//
-		// if(team.getEndZone() != null)
-		// {
-		// r = team.getEndZone();
-		//
-		// g2.setColor(team.getCouleur());
-		// g2.fillRect(r.x+MARGES_CHATEAU, r.y+MARGES_CHATEAU, r.width-(2*MARGES_CHATEAU), r.height-(2*MARGES_CHATEAU));
-		// g2.drawImage(I_CHATEAU, r.x, r.y, r.width, r.height, null);
-		// }
-		// }
-
-
 		// draw towers
 
 		for(Tower tower : game.getTowers())
 			drawTower(tower,canvas);
-
 
 
 		// draw creatures
@@ -302,73 +300,6 @@ public class GameThread extends Thread implements GameState {
 			drawHealthBar(creature, canvas);
 			drawCreature(creature,canvas);
 		}
-
-
-		// // selected tower
-		//
-		// if(towerSelectionnee != null)
-		// {
-		// drawRange(towerSelectionnee,g2,COULEUR_RAYON_PORTEE);
-		//
-		// g2.setColor(COULEUR_SELECTION);
-		// g2.setStroke(TRAIT_TILLE);
-		// g2.drawRect(towerSelectionnee.getXi(), towerSelectionnee.getYi(),
-		// (int) (towerSelectionnee.getWidth()),
-		// (int) (towerSelectionnee.getHeight()));
-		// }
-		//
-		// g2.setStroke(traitTmp);
-		//
-		//
-		// // animations
-		// game.drawAnimations(g2, Animation.HEIGHT_AIR);
-		//
-		//
-		// // added tower
-		//
-		// if(addedTower != null && sourisSurMap)
-		// {
-		// g2.drawImage(I_CADRILLAGE,addedTower.x-40,addedTower.y-40,null);
-		//
-		// // modification de la transparence
-		// setTransparence(ALPHA_TOUR_A_AJOUTER,g2);
-		//
-		// // dessin de la tower
-		// dessinerTower(addedTower,g2,false);
-		//
-		// // positionnnable ou non
-		// if(!game.laTowerPeutEtrePosee(addedTower))
-		// drawRange(addedTower,g2,COULEUR_POSE_IMPOSSIBLE);
-		// else
-		// // affichage du rayon de portee
-		// drawRange(addedTower,g2,COULEUR_RAYON_PORTEE);
-		// }
-		//
-		//
-		// // paused
-		//
-		// if(game.isPaused())
-		// {
-		// setTransparence(0.3f, g2);
-		// g2.setColor(Color.DARK_GRAY);
-		// g2.fillRect(0, 0, WIDTH, HEIGHT);
-		// setTransparence(1.0f, g2);
-		//
-		// g2.setColor(Color.WHITE);
-		// Font policeTmp = g2.getFont();
-		// g2.setFont(GestionnaireDesPolices.POLICE_TITRE);
-		// g2.drawString("[ PAUSE ]", WIDTH / 2 - 80, HEIGHT / 2 - 50);
-		// g2.setFont(policeTmp);
-		// }
-		//
-		//
-		// if(afficherFps)
-		// {
-		// g2.setColor(Color.BLACK);
-		// g2.drawString("fps : "+fps, 0, 12);
-		// g2.setColor(Color.WHITE);
-		// g2.drawString("fps : "+fps, 1, 12+1);
-		// }
 
 	}
 
@@ -383,6 +314,16 @@ public class GameThread extends Thread implements GameState {
 
 		activeCreatureBM = StringResources.toBitmap(context, creature.getImage());
 		canvas.drawBitmap(activeCreatureBM,xOrigin+creature.x(),yOrigin+creature.y(),null);
+
+		if (creature.getCoeffSlow() > 0)
+		{
+			Bitmap iceBM = StringResources.toBitmap(context, "drawable/ice");
+			int left = xOrigin+creature.x();
+			int top = yOrigin+creature.y();
+			int right = left + creature.width();
+			int bottom = top + creature.height();
+			canvas.drawBitmap(iceBM,null,(new Rect(left,top,right,bottom)),null);
+		}
 	}
 
 	private void drawHealthBar(Creature creature, Canvas canvas) {
@@ -422,6 +363,10 @@ public class GameThread extends Thread implements GameState {
 	public int getGold()
 	{
 		return (int) player.getGold();
+	}
+	public boolean canPlaceTowers()
+	{
+		return game.getCreatures().isEmpty();
 	}
 
 	public void initialize() {
@@ -470,7 +415,8 @@ public class GameThread extends Thread implements GameState {
 
 	}
 
-	public void launchWave(CreatureWave wave) {
+	@Override
+	public void waveHasLaunched(CreatureWave wave) {
 		// TODO Auto-generated method stub
 
 	}

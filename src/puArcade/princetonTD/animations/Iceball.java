@@ -17,7 +17,7 @@ public class Iceball extends Attack {
     
     static
     {
-        IMAGE = "drawable/iceball.png";
+        IMAGE = "drawable/iceball";
     }
     
     

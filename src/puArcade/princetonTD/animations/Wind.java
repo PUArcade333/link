@@ -26,19 +26,19 @@ public class Wind extends Attack {
 
 	static
 	{
-		IMAGE = "drawable/wind.png";
+		IMAGE = "drawable/wind";
 	}
 
 
-	public Wind(Game game, Tower attacker, Creature cible, long damage)
+	public Wind(Game game, Tower attacker, Creature target, long damage)
 	{
 		super((int) attacker.centerX(), (int) attacker.centerY(), game,
-				attacker, cible);
+				attacker, target);
 
 		this.damage = damage;
 
-		ANGLE = Math.atan2(cible.centerY() - attacker.centerY(), 
-				cible.centerX() - attacker.centerX());
+		ANGLE = Math.atan2(target.centerY() - attacker.centerY(), 
+				target.centerX() - attacker.centerX());
 
 		MAX_DISTANCE = attacker.getRange();
 

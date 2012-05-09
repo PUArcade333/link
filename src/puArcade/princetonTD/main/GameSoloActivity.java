@@ -1,5 +1,13 @@
 package puArcade.princetonTD.main;
 
+import puArcade.princetonTD.towers.TowerAA;
+import puArcade.princetonTD.towers.TowerAir;
+import puArcade.princetonTD.towers.TowerArcher;
+import puArcade.princetonTD.towers.TowerCanon;
+import puArcade.princetonTD.towers.TowerEarth;
+import puArcade.princetonTD.towers.TowerElectric;
+import puArcade.princetonTD.towers.TowerFire;
+import puArcade.princetonTD.towers.TowerIce;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -27,6 +35,16 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 	private TextView lifeText;
 	private TextView goldText;
 
+	// Tower buttons
+	private ImageButton arrow;
+	private ImageButton canon;
+	private ImageButton aa;
+	private ImageButton ice;
+	private ImageButton elect;
+	private ImageButton fire;
+	private ImageButton air;
+	private ImageButton earth;
+
 
 	class RefreshHandler extends Handler {
 		@Override
@@ -42,10 +60,59 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 
 	private void updateUI(){
 		mRedrawHandler.sleep(1000);
-		scoreText.setText("Score: " + gbv.getScore());
-		waveText.setText("Next wave: " + gbv.getWave());
-		lifeText.setText("Lives: " + gbv.getLives());
-		goldText.setText("Gold: " + gbv.getGold());
+		scoreText.setText("Score:\n" + gbv.getScore());
+		waveText.setText("Next wave:\n" + gbv.getWave());
+		lifeText.setText("Lives:\n" + gbv.getLives());
+		int gold = gbv.getGold();
+		goldText.setText("Gold:\n" + gold);
+
+		// enable/disable tower buttons
+		if (gbv.canPlaceTowers())
+		{
+			if (gold < (new TowerArcher()).getPrice())
+				arrow.setEnabled(false);
+			else
+				arrow.setEnabled(true);
+			if (gold < (new TowerCanon()).getPrice())
+				canon.setEnabled(false);
+			else
+				canon.setEnabled(true);
+			if (gold < (new TowerAA()).getPrice())
+				aa.setEnabled(false);
+			else
+				aa.setEnabled(true);
+			if (gold < (new TowerIce()).getPrice())
+				ice.setEnabled(false);
+			else
+				ice.setEnabled(true);
+			if (gold < (new TowerElectric()).getPrice())
+				elect.setEnabled(false);
+			else
+				elect.setEnabled(true);
+			if (gold < (new TowerFire()).getPrice())
+				fire.setEnabled(false);
+			else
+				fire.setEnabled(true);
+			if (gold < (new TowerAir()).getPrice())
+				air.setEnabled(false);
+			else
+				air.setEnabled(true);
+			if (gold < (new TowerEarth()).getPrice())
+				earth.setEnabled(false);
+			else
+				earth.setEnabled(true);
+		}
+		else
+		{
+			arrow.setEnabled(false);
+			canon.setEnabled(false);
+			aa.setEnabled(false);
+			ice.setEnabled(false);
+			elect.setEnabled(false);
+			fire.setEnabled(false);
+			air.setEnabled(false);
+			earth.setEnabled(false);
+		}
 	}
 
 	public void onCreate(Bundle savedInstanceState) {
@@ -57,14 +124,15 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 		gbv.requestFocusFromTouch();
 
 		// Tower buttons
-		final ImageButton arrow = (ImageButton)findViewById(R.id.tdbutton1);
-		final ImageButton canon = (ImageButton)findViewById(R.id.tdbutton2);
-		final ImageButton aa = (ImageButton)findViewById(R.id.tdbutton3);
-		final ImageButton ice = (ImageButton)findViewById(R.id.tdbutton4);
-		final ImageButton elect = (ImageButton)findViewById(R.id.tdbutton5);
-		final ImageButton fire = (ImageButton)findViewById(R.id.tdbutton6);
-		final ImageButton air = (ImageButton)findViewById(R.id.tdbutton7);
-		final ImageButton earth = (ImageButton)findViewById(R.id.tdbutton8);
+		arrow = (ImageButton)findViewById(R.id.tdbutton1);
+		canon = (ImageButton)findViewById(R.id.tdbutton2);
+		aa = (ImageButton)findViewById(R.id.tdbutton3);
+		ice = (ImageButton)findViewById(R.id.tdbutton4);
+		elect = (ImageButton)findViewById(R.id.tdbutton5);
+		fire = (ImageButton)findViewById(R.id.tdbutton6);
+		air = (ImageButton)findViewById(R.id.tdbutton7);
+		earth = (ImageButton)findViewById(R.id.tdbutton8);
+
 		arrow.setOnClickListener(this);
 		canon.setOnClickListener(this);
 		aa.setOnClickListener(this);

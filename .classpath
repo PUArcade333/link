@@ -2,15 +2,9 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
-<<<<<<< HEAD
-	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/Android/android-sdk/platforms/android-15/android.jar"/>
-	<classpathentry kind="lib" path="C:/Program Files (x86)/Android/android-sdk/tools/support/annotations.jar"/>
-=======
+	<classpathentry kind="lib" path="libs/jgrapht-jdk1.6.jar"/>
 	<classpathentry kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
-	<classpathentry kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
-	<classpathentry kind="lib" path="lib/jgrapht-jdk1.6.jar"/>
->>>>>>> 249aca5b01ff06c7e268697feeab40adc88a3374
+	<classpathentry kind="lib" path="C:/Program Files/Android/android-sdk/tools/support/annotations.jar"/>
+	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
