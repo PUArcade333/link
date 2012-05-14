@@ -1,14 +1,36 @@
+/*
+  Copyright (C) 2010 Aurelien Da Campo
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ */
+
+/*
+  Unless stated otherwise, all code below is from said above open 
+  source project. Code variables have been translated from French to
+  English to facilitate development. Everything else has been left intact
+  from the original source.
+
+  Modified portions are further commented detailing changes made.
+ */
+
 package puArcade.princetonTD.players;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Vector;
-
-import puArcade.princetonTD.exceptions.GameFullException;
-import puArcade.princetonTD.exceptions.OccupiedLocationException;
-
-
 
 import android.graphics.Rect;
 
@@ -33,7 +55,7 @@ public class Team implements Serializable {
 	private ArrayList<PlayerLocation> playerLocations = new ArrayList<PlayerLocation>();
 
 	private double pathLength = 0.0;
-	
+
 	// Constructor
 	public Team(int id, String name, int color)
 	{
@@ -57,17 +79,13 @@ public class Team implements Serializable {
 		return color;
 	}
 
-	public void addPlayer(Player player, PlayerLocation pl) 
-			throws OccupiedLocationException
-			{
+	public void addPlayer(Player player, PlayerLocation pl)
+	{
 		if(player == null)
 			throw new IllegalArgumentException();
 
 		if(pl == null)
 			throw new IllegalArgumentException();
-
-		if(pl.getPlayer() != null)
-			throw new OccupiedLocationException("Location Occupied");
 
 		if(player.getTeam() != null)
 			player.getTeam().removePlayer(player);
@@ -77,25 +95,16 @@ public class Team implements Serializable {
 		player.setTeam(this);
 
 		player.setPlayerLocation(pl);
-			}
+	}
 
-	public void addPlayer(Player player) throws GameFullException
+	public void addPlayer(Player player)
 	{
 		if(player == null)
 			throw new IllegalArgumentException();
 
 		PlayerLocation pl = findLocation();
 
-		if(pl == null) 
-			throw new GameFullException("No location available");
-
-		else
-			try{
-				addPlayer(player, pl);
-			} 
-		catch (OccupiedLocationException e){
-			e.printStackTrace();
-		} 
+		addPlayer(player, pl);
 	}
 
 	public PlayerLocation findLocation()
@@ -162,7 +171,7 @@ public class Team implements Serializable {
 	{
 		return startZone.get(index);
 	}
-	
+
 	public Rect[] getStartZones()
 	{
 		Rect[] sz = new Rect[startZone.size()];
@@ -262,15 +271,6 @@ public class Team implements Serializable {
 	public void setName(String name)
 	{
 		this.name = name;
-	}
-
-	public void removeStartZone(Rect z)
-	{
-		// TODO Protection ?
-		// if(startZone.size() > 1)
-		startZone.remove(z);
-		// else
-		//  throw new ... 
 	}
 
 }

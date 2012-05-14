@@ -1,3 +1,9 @@
+/*
+ * Game UI
+ * Contains the game display, has a panel of buttons for player input,
+ * and has a panel of text fields to display game data to player.
+ */
+
 package puArcade.princetonTD.main;
 
 import puArcade.princetonTD.towers.TowerAA;
@@ -14,7 +20,6 @@ import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
@@ -26,10 +31,13 @@ import android.widget.ImageButton;
 import com.link.R;
 
 public class GameSoloActivity extends Activity implements OnClickListener {
-
+	
+	// View to hold game display
 	private GameBoardView gbv;
+	// Handler to refresh game data
 	private RefreshHandler mRedrawHandler = new RefreshHandler();
-
+	
+	// Game data visible to user
 	private TextView scoreText;
 	private TextView waveText;
 	private TextView lifeText;
@@ -45,7 +53,7 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 	private ImageButton air;
 	private ImageButton earth;
 
-
+	// refresh UI
 	class RefreshHandler extends Handler {
 		@Override
 		public void handleMessage(Message msg) {
@@ -57,7 +65,8 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 			sendMessageDelayed(obtainMessage(0), delayMillis);
 		}
 	};
-
+	
+	// update UI
 	private void updateUI(){
 		mRedrawHandler.sleep(1000);
 		scoreText.setText("Score:\n" + gbv.getScore());
@@ -118,8 +127,10 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		initWindow();
-
+		
+		// initialize UI
 		setContentView(R.layout.tdmain);
+		// initialize game display
 		gbv = (GameBoardView)findViewById(R.id.surfaceView1);
 		gbv.requestFocusFromTouch();
 
@@ -132,7 +143,8 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 		fire = (ImageButton)findViewById(R.id.tdbutton6);
 		air = (ImageButton)findViewById(R.id.tdbutton7);
 		earth = (ImageButton)findViewById(R.id.tdbutton8);
-
+		
+		// set tower button listeners
 		arrow.setOnClickListener(this);
 		canon.setOnClickListener(this);
 		aa.setOnClickListener(this);
@@ -142,7 +154,7 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 		air.setOnClickListener(this);
 		earth.setOnClickListener(this);
 
-		// text fields
+		// get text fields
 		scoreText = (TextView)findViewById(R.id.text1);
 		waveText = (TextView)findViewById(R.id.text2);
 		lifeText = (TextView)findViewById(R.id.text3);
@@ -156,18 +168,20 @@ public class GameSoloActivity extends Activity implements OnClickListener {
 		super.onPause();
 	}
 
-
+	// initialize window properties
 	private void initWindow() {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 	}
-
+	
+	// pass user click input to game display to handle
 	public void onClick(View v) {
 		gbv.onClick(v);
 	}
-
+	
+	// return score to start screen when finished
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if (keyCode == KeyEvent.KEYCODE_BACK) {

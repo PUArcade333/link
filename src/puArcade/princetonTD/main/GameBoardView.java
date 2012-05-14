@@ -1,40 +1,40 @@
+/*
+ * Game Display
+ * Bridges the UI to the Game Logic.
+ * Handles player input passed down from UI.
+ * Provides methods for UI to get game data from game thread.
+ */
+
 package puArcade.princetonTD.main;
 
 import com.link.R;
 import puArcade.princetonTD.towers.*;
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnTouchListener;
-import android.widget.TextView;
-import android.widget.ImageButton;
-import android.widget.Scroller;
 
 public class GameBoardView extends SurfaceView implements
 OnTouchListener, SurfaceHolder.Callback {
-
-	/*
-	 * Tag used for LogCat
-	 */
-	private static final String TAG = "GameBoardView";
-
+	
+	// Game display
 	private SurfaceHolder surfaceHolder;
 
 	public Context context;
 
 	/*
 	 * Reference to the thread which controls graphics/game control
-	 * Will communicate to View through use of Handlers
+	 * Will communicate to View through use of Handlers in UI
 	 */
 	private GameThread gameThread;
 
-
+	
+	// Constructors
+	
 	public GameBoardView(Context context) {
 		super(context);
 		this.context = context;
@@ -58,10 +58,10 @@ OnTouchListener, SurfaceHolder.Callback {
 		setFocusableInTouchMode(true);
 		this.setOnTouchListener(this);
 	}
-
+	
+	// when screen size is changed (landscape)
 	@Override
 	public void onSizeChanged(int w, int h, int oldw, int oldh) {
-		Log.d(TAG, "width=" + w + " height=" + h);
 		SurfaceHolder holder = getHolder();
 		holder.addCallback(this);
 
@@ -69,7 +69,43 @@ OnTouchListener, SurfaceHolder.Callback {
 
 		super.onSizeChanged(w, h, oldw, oldh);
 	}
+	
+	//-----------------------------------------------------
+	// inherited methods
+	//-----------------------------------------------------
+	
+	@Override
+	public void surfaceChanged(SurfaceHolder holder, int format, int width,
+			int height) {
+		// not implemented
+	}
+	
+	public void surfaceCreated(SurfaceHolder holder) {
+		gameThread.setRunning(true);
+		gameThread.start();
+	}
 
+	public void surfaceDestroyed(SurfaceHolder holder) {
+		boolean retry = true;
+		gameThread.setRunning(false);
+		while (retry) {
+			try {
+				gameThread.join();
+				retry = false;
+			} catch (InterruptedException e) {
+			}
+		}
+	}
+
+	public SurfaceHolder getSurfaceHolder() {
+		return surfaceHolder;
+	}
+	
+	//-----------------------------------------------------
+	// handles user input passed from the UI
+	//-----------------------------------------------------
+	
+	// when tower buttons are clicked (set active tower to be placed)
 	public void onClick(View v) {
 		if (v.getId() == R.id.tdbutton1)
 		{
@@ -104,12 +140,15 @@ OnTouchListener, SurfaceHolder.Callback {
 			gameThread.setActiveTower(new TowerEarth());
 		}
 	}
-
+	
+	// when game display is touched with a motion event
+	// (reposition screen || place tower)
 	public boolean onTouch(View view, MotionEvent event) {
 		gameThread.onTouch(event);
 		return true;
 	}
-
+	
+	// when center dpad is pressed (launch wave)
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
 		if(event.getKeyCode() == KeyEvent.KEYCODE_DPAD_CENTER){
@@ -120,30 +159,9 @@ OnTouchListener, SurfaceHolder.Callback {
 		}
 	}
 
-	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-
-	}
-
-	public void surfaceCreated(SurfaceHolder holder) {
-		gameThread.setRunning(true);
-		gameThread.start();
-	}
-
-	public void surfaceDestroyed(SurfaceHolder holder) {
-		boolean retry = true;
-		gameThread.setRunning(false);
-		while (retry) {
-			try {
-				gameThread.join();
-				retry = false;
-			} catch (InterruptedException e) {
-			}
-		}
-	}
-
-	public SurfaceHolder getSurfaceHolder() {
-		return surfaceHolder;
-	}
+	//-----------------------------------------------------
+	// return data to UI when requested
+	//-----------------------------------------------------
 
 	public int getScore() {
 		if (gameThread != null)
@@ -176,7 +194,7 @@ OnTouchListener, SurfaceHolder.Callback {
 			return false;
 	}
 
-
+	// end game when requested
 	public void finish()
 	{
 		if (gameThread != null)

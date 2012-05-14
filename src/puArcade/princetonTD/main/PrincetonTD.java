@@ -1,3 +1,8 @@
+/*
+ * Starting screen for Tower Defense game.
+ * Player can either start a new solo game or go to instructions page.
+ */
+
 package puArcade.princetonTD.main;
 
 import android.app.Activity;
@@ -31,7 +36,8 @@ public class PrincetonTD extends Activity {
 		Button instruct = (Button)findViewById(R.id.tdinstruct);
 		instruct.setOnClickListener(click);
 	}
-
+	
+	// initialize window properties
 	private void initWindow() {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -42,17 +48,20 @@ public class PrincetonTD extends Activity {
 	private OnClickListener click = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
+			// start new solo game
 			if (v.getId() == R.id.solo) {
 				Intent newGame = new Intent(PrincetonTD.this, puArcade.princetonTD.main.GameSoloActivity.class);
 				startActivityForResult(newGame, 0);
 			}
+			// go to instructions page
 			else if (v.getId() == R.id.tdinstruct) {
 				Intent getInstruct = new Intent(PrincetonTD.this, puArcade.princetonTD.main.GameInstructions.class);
 				startActivityForResult(getInstruct, 0);
 			}
         }
 	};
-
+	
+	// receive score returned by game
 	protected void onActivityResult(int requestCode, int resultCode,
 			Intent data) {
 		if (requestCode == 0) {

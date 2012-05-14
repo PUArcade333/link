@@ -1,8 +1,36 @@
+/*
+  Copyright (C) 2010 Aurelien Da Campo
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
+/*
+  Unless stated otherwise, all code below is from said above open 
+  source project. Code variables have been translated from French to
+  English to facilitate development. Everything else has been left intact
+  from the original source.
+  
+  Modified portions are further commented detailing changes made.
+*/
+
 package puArcade.princetonTD.creatures;
 
 import java.util.ArrayList;
 import java.util.Date;
 
+import puArcade.princetonTD.game.Game;
 import puArcade.princetonTD.players.Player;
 import puArcade.princetonTD.players.Team;
 import puArcade.princetonTD.towers.Tower;
@@ -43,6 +71,9 @@ public abstract class Creature {
 
 	// Type
 	private final int TYPE;
+	
+	// Game
+	private Game game;
 
 	// Path of creature
 	private ArrayList<Point> path;
@@ -59,8 +90,6 @@ public abstract class Creature {
 	// Reward
 	private int reward;
 
-	// TODO private int price;
-
 	// Image
 	protected String image;
 
@@ -69,9 +98,6 @@ public abstract class Creature {
 
 	// Slowed coefficient
 	protected double coeffSlow; // 0.0 = normal, 1.0 = 100%
-
-	// Changes in creature's state
-	private ArrayList<CreatureState> creatureState;
 
 	// Allow death animation
 	private boolean death;
@@ -109,7 +135,6 @@ public abstract class Creature {
 		this.healthMax		= healthMax;
 		health              = healthMax;
 		this.speed			= speed;
-		creatureState = new ArrayList<CreatureState>();
 		this.image			= image;
 		TYPE				= type;
 		NAME				= name;
@@ -117,6 +142,11 @@ public abstract class Creature {
 
 	// Copy creature
 	abstract public Creature copy();
+	
+	public void setGame(Game game)
+	{
+		this.game = game;
+	}
 
 	// return path
 	public ArrayList<Point> getPath()
@@ -130,6 +160,7 @@ public abstract class Creature {
 		return ID;
 	}
 	
+	// return position & dimensions
 	public int x()
 	{
 		return x;
@@ -146,7 +177,8 @@ public abstract class Creature {
 	{
 		return height;
 	}
-	
+	// MODIFICATION
+	// added functions to return position of creature's center
 	public int centerX()
 	{
 		return (int) x + width/2;
@@ -293,9 +325,8 @@ public abstract class Creature {
 				&& !death && !isDead())
 		{
 			death = true;
-
-			for(CreatureState cs : creatureState)
-				cs.reachedCreature(this);
+			
+			game.reachedCreature(this);
 		}
 	}
 
@@ -348,9 +379,6 @@ public abstract class Creature {
 			if(!invincible)
 				health -= damage;
 
-			for(CreatureState cs : creatureState)
-				cs.damagedCreature(this);
-
 			// is dead ?
 			if(isDead())
 				killedBy(player);
@@ -367,17 +395,10 @@ public abstract class Creature {
 	public void killedBy(Player player)
 	{ 
 		health = 0;
-
-		for(CreatureState cs : creatureState)
-			cs.killedCreature(this,player);
-
+		
+		game.killedCreature(this,player);
+		
 		death = true;
-	}
-
-	// Add creature to CreatureState
-	public void addCreatureState(CreatureState cs)
-	{
-		creatureState.add(cs);
 	}
 
 	// return time in milliseconds since last call of this function.
@@ -488,10 +509,11 @@ public abstract class Creature {
 			}
 		}
 	}
-
+	
+	// MODIFICATION
+	// does creature intersect with another rectangle?
 	public boolean intersects(Rect rectangle) {
-		// TODO Auto-generated method stub
-		return false;
+		return rectangle.intersects(x, y, x+width, y+height);
 	}
 
 }

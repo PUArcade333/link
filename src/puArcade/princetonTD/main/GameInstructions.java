@@ -1,9 +1,13 @@
+/*
+ * Instructions page.
+ * Has button to return player to start screen.
+ */
+
 package puArcade.princetonTD.main;
 
 import com.link.R;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -30,6 +34,7 @@ public class GameInstructions extends Activity {
 		});
 	}
 	
+	// initialize window properties
 	private void initWindow() {
 		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, 
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);

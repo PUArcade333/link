@@ -1,3 +1,30 @@
+/*
+  Copyright (C) 2010 Aurelien Da Campo
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
+/*
+  Unless stated otherwise, all code below is from said above open 
+  source project. Code variables have been translated from French to
+  English to facilitate development. Everything else has been left intact
+  from the original source.
+  
+  Modified portions are further commented detailing changes made.
+*/
+
 package puArcade.princetonTD.game;
 
 import java.util.ArrayList;
@@ -7,32 +34,21 @@ import puArcade.princetonTD.animations.Animation;
 import puArcade.princetonTD.animations.AnimationManager;
 import puArcade.princetonTD.creatures.Creature;
 import puArcade.princetonTD.creatures.CreatureManager;
-import puArcade.princetonTD.creatures.CreatureState;
 import puArcade.princetonTD.creatures.CreatureWave;
-import puArcade.princetonTD.creatures.WaveState;
 import puArcade.princetonTD.exceptions.BlockedPathException;
-import puArcade.princetonTD.exceptions.GameFullException;
-import puArcade.princetonTD.exceptions.GameInProgressException;
 import puArcade.princetonTD.exceptions.InaccessibleZoneException;
 import puArcade.princetonTD.exceptions.MaxLevelException;
 import puArcade.princetonTD.exceptions.NoMoneyException;
-import puArcade.princetonTD.exceptions.UnauthorizedException;
 import puArcade.princetonTD.maps.Map;
 import puArcade.princetonTD.players.Player;
 import puArcade.princetonTD.players.PlayerLocation;
-import puArcade.princetonTD.players.PlayerState;
 import puArcade.princetonTD.players.Team;
 import puArcade.princetonTD.towers.Tower;
 import puArcade.princetonTD.towers.TowerManager;
 
-
-
-
-
 import android.graphics.Rect;
 
-
-public abstract class Game implements PlayerState, CreatureState, WaveState
+public abstract class Game
 {
 	// Center Position
 	public static final int MODE_CENTER = 0;
@@ -89,9 +105,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 	// Destroyed?
 	protected boolean isDestroyed;
 
-	// Game State
-	protected GameState gs;
-
 	// Player
 	protected Player player;
 
@@ -139,9 +152,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		}  
 
 		isInitialized = true;
-
-		if(gs != null)
-			gs.initialize();
 	}
 
 	public void reset()
@@ -161,8 +171,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		towerManager		= new TowerManager(this);
 		creatureManager		= new CreatureManager(this);
 		animationManager	= new AnimationManager(this);
-
-
 
 		// add players
 		for(Team t : teams)
@@ -195,10 +203,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		animationManager.start();
 
 		isStarted = true;
-
-		// notification
-		if(gs != null)
-			gs.startGame();
 	}
 
 	// Place tower
@@ -235,27 +239,21 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		// gold transaction
 		tower.getOwner().setGold(
 				tower.getOwner().getGold() - tower.getPrice());
-
-		if(gs != null)
-			gs.addTower(tower);
 	}
 
 
 	// Sell tower
-	public void sellTower(Tower tower) throws UnauthorizedException
+	public void sellTower(Tower tower)
 	{
 		towerManager.removeTower(tower);
 
 		tower.getOwner().setGold(
 				tower.getOwner().getGold() + tower.getSellPrice());
-
-		if(gs != null)
-			gs.sellTower(tower);
 	}
 
 
 	// Upgrade tower
-	public void upgradeTower(Tower tower) throws MaxLevelException, NoMoneyException, UnauthorizedException
+	public void upgradeTower(Tower tower) throws MaxLevelException, NoMoneyException
 	{
 		if(!tower.canUpgrade())
 			throw new MaxLevelException("Max level reached!");
@@ -266,9 +264,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		tower.getOwner().setGold(tower.getOwner().getGold() - tower.getPrice());
 
 		tower.upgrade();
-
-		if(gs != null)
-			gs.upgradeTower(tower);
 	}
 
 	// Start new wave of creatures
@@ -278,22 +273,15 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 
 		nextWave();
 
-		creatureManager.launchWave(currentWave, player, team, this, this);
-		
+		creatureManager.launchWave(currentWave, player, team);
+
 		currentWave = map.getCreatureWave(indexCurrentWave);
-	}
-	
-	// Wave has finished launching
-	public void waveHasLaunched(CreatureWave creatureWave)
-	{
-		if(gs != null)
-			gs.waveHasLaunched(creatureWave); 
 	}
 
 	// Launch Wave
 	public void launchWave(Player player, Team team, CreatureWave wave) throws NoMoneyException
 	{ 
-		creatureManager.launchWave(wave, player, team, this, this);
+		creatureManager.launchWave(wave, player, team);
 	}
 
 	// is finished?
@@ -311,29 +299,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 			isFinished = true;
 
 			stopAll();
-
-			Team winner = null;
-			int maxScore = -1;
-
-			// FIXME equal scores !
-
-			// teams involved
-			ArrayList<Team> teamsInGame = new ArrayList<Team>();
-			for(Team team : teams)
-				if(!team.hasLost())
-				{
-					// select winning team
-					if(team.getScore() > maxScore)
-					{
-						winner = team;
-						maxScore = team.getScore();
-					}
-
-					teamsInGame.add(team);
-				}
-
-			if(gs != null)
-				gs.end(new GameResult(winner)); // TODO check
 		}
 	}
 
@@ -412,37 +377,12 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 	}
 
 	// Add player
-	public void addPlayer(Player player) throws GameInProgressException, GameFullException
+	public void addPlayer(Player player)
 	{
-		if(isStarted)
-			throw new GameInProgressException("Game has started");
-
 		for(int i=0;i<teams.size();i++)
-		{
-			try
-			{              
-				teams.get(i).addPlayer(player);
-
-				player.setPlayerState((PlayerState) this);
-
-				if(gs != null)
-					gs.addPlayer(player);
-
-				return;
-			}
-			catch (GameFullException e)
-			{
-				// ?
-			}
+		{   
+			teams.get(i).addPlayer(player);
 		}
-
-		throw new GameFullException("Game full");
-	}
-
-	// set GameState
-	public void setGameState(GameState gs)
-	{
-		this.gs = gs;
 	}
 
 	// return main player
@@ -455,15 +395,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 	public void setMainPlayer(Player player)
 	{
 		this.player = player;
-
-		player.setPlayerState((PlayerState) this);
-	}
-
-	public void damagedCreature(Creature creature)
-	{
-		if(gs != null)
-			gs.damagedCreature(creature);
-
 	}
 
 	synchronized public void killedCreature(Creature creature, Player player)
@@ -471,9 +402,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		player.setGold(player.getGold() + creature.getReward());
 
 		player.setScore(player.getScore() + creature.getReward());
-
-		if(gs != null)
-			gs.killedCreature(creature,player);
 	}
 
 	synchronized public void reachedCreature(Creature creature)
@@ -484,20 +412,8 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		{
 			team.loseLife();
 
-			if(gs != null)
-			{
-				gs.reachedCreature(creature);
-
-				// FIXME IMPORTANT
-				for(Player player : team.getPlayers())
-					gs.updatePlayer(player);
-			}
-
 			if(team.hasLost())
 			{
-				if(gs != null)
-					gs.lostTeam(team);
-
 				int remaining = 0;
 				for(Team tmp : teams)
 					if(!tmp.hasLost())
@@ -507,12 +423,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 					end();
 			}
 		} 
-	}
-
-	public void updatePlayer(Player player)
-	{
-		if(gs != null)
-			gs.updatePlayer(player);
 	}
 
 	// Can place tower
@@ -539,27 +449,11 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		return creatureManager.getCreaturesInCircle(centerX, centreY, radius);
 	}
 
-	// add creature
-	public void addCreature(Creature creature)
-	{
-		if(gs != null)
-			gs.addCreature(creature);
-	}
-
 	// add animation
 	public void addAnimation(Animation animation)
 	{
 		animationManager.addAnimation(animation);
-
-		if(gs != null)
-			gs.addAnimation(animation);
 	}
-
-	// draw animations
-	//	public void drawAnimations(Graphics2D g2, int height)
-	//	{
-	//		animationManager.drawAnimations(g2, height);
-	//	}
 
 	// get player
 	public Player getPlayer(int idPlayer)
@@ -615,7 +509,7 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 	{
 		return currentWave;
 	}
-	
+
 	// next non-empty team
 	public Team getNextTeam(Team team)
 	{
@@ -679,9 +573,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		if(coeffSpeed + STEP_COEFF_SPEED <= MAX_COEFF_SPEED)
 		{    
 			coeffSpeed += STEP_COEFF_SPEED;
-
-			if(gs != null)
-				gs.modifyCoeffSpeed(coeffSpeed);
 		}
 
 		return coeffSpeed;
@@ -693,9 +584,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 		if(coeffSpeed - STEP_COEFF_SPEED >= MIN_COEFF_SPEED)
 		{ 
 			coeffSpeed -= STEP_COEFF_SPEED;
-
-			if(gs != null)
-				gs.modifyCoeffSpeed(coeffSpeed);
 		}    
 		return coeffSpeed;
 	}
@@ -709,9 +597,6 @@ public abstract class Game implements PlayerState, CreatureState, WaveState
 					"Cannot modify speed");
 
 		coeffSpeed = value;
-
-		if(gs != null)
-			gs.modifyCoeffSpeed(coeffSpeed);
 	}
 
 	// return positioning mode

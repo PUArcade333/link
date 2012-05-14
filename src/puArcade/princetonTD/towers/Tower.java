@@ -1,5 +1,31 @@
-package puArcade.princetonTD.towers;
+/*
+  Copyright (C) 2010 Aurelien Da Campo
 
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+*/
+
+/*
+  Unless stated otherwise, all code below is from said above open 
+  source project. Code variables have been translated from French to
+  English to facilitate development. Everything else has been left intact
+  from the original source.
+  
+  Modified portions are further commented detailing changes made.
+*/
+
+package puArcade.princetonTD.towers;
 
 import java.util.Enumeration;
 
@@ -144,6 +170,7 @@ public abstract class Tower {
 		return ID;
 	}
 	
+	// return position & dimensions
 	public int x()
 	{
 		return x;
@@ -160,16 +187,8 @@ public abstract class Tower {
 	{
 		return height;
 	}
-	
-	public void setX(int x)
-	{
-		this.x = x;
-	}
-	public void setY(int y)
-	{
-		this.y = y;
-	}
-	
+	// MODIFICATION
+	// added functions to return position of tower's center
 	public int centerX()
 	{
 		return (int) x + width/2;
@@ -177,6 +196,16 @@ public abstract class Tower {
 	public int centerY()
 	{
 		return (int) y + height/2;
+	}
+	
+	// set position
+	public void setX(int x)
+	{
+		this.x = x;
+	}
+	public void setY(int y)
+	{
+		this.y = y;
 	}
 
 	// return background color
@@ -189,18 +218,6 @@ public abstract class Tower {
 	public String getName()
 	{
 		return NAME;
-	}
-
-	// return x-coordinate
-	public int getXi()
-	{
-		return x;
-	}
-
-	// return y-coordinate
-	public int getYi()
-	{
-		return y;
 	}
 
 	// return description
@@ -476,7 +493,7 @@ public abstract class Tower {
 		this.owner = owner;
 	}
 
-	// return angle
+	// return angle (orientation of tower)
 	public double getAngle()
 	{
 		return angle;
@@ -497,6 +514,8 @@ public abstract class Tower {
 		return targetType;
 	}
 	
+	// MODIFICATIONS
+	// added functions to determine intersections
 	public boolean intersects(Rect wall) {
 		return wall.intersects(x, y, x+width, y+height);
 	}
