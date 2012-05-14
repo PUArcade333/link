@@ -67,7 +67,8 @@ public class PrincetonTD extends Activity {
 		if (requestCode == 0) {
 			if (resultCode == RESULT_OK) {
 				TextView scoreText = (TextView)findViewById(R.id.tdscore);
-				scoreText.setText("" + data.getIntExtra("score",0));
+				score = data.getIntExtra("score", 0);
+				scoreText.setText("Score: " + score);
 			}
 		}
 	}

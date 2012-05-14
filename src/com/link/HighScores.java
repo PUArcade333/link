@@ -83,18 +83,6 @@ public class HighScores extends TabActivity {
 	                      res.getDrawable(R.drawable.game_icons2))
 	                  .setContent(intent);
 	    tabHost.addTab(spec);
-	    
-	    intent = new Intent().setClass(this, GetScores3Activity.class);
-	    spec = tabHost.newTabSpec("tables").setIndicator("Tables",
-	                      res.getDrawable(R.drawable.game_icons3))
-	                  .setContent(intent);
-	    tabHost.addTab(spec);
-	    
-	    intent = new Intent().setClass(this, GetScores4Activity.class);
-	    spec = tabHost.newTabSpec("connect").setIndicator("Connnect 4",
-	                      res.getDrawable(R.drawable.game_icons4))
-	                  .setContent(intent);
-	    tabHost.addTab(spec);
 
 	    tabHost.setCurrentTab(0);
 
