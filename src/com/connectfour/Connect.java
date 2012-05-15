@@ -20,56 +20,87 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import android.util.Log;
+
 public class Connect {
 
 	/** default port **/
 	private static final int SERVERPORT = 8080;
 	/** port that user inputs **/
-	private int serverPort = 0;
+	private int userPort = -1;
 
 
-	/** input stream from server **/
-	BufferedReader serverIn;
-	/** output stream from server **/
-	PrintWriter serverOut;
-	/** input stream from client **/
-	BufferedReader clientIn;
-	/** output stream from client **/
-	PrintWriter clientOut;
+	/** input stream **/
+	BufferedReader in;
+	/** output stream **/
+	PrintWriter out;
 	/** server phone's IP **/
 	String serverIP = "";
 	/** server socket that will initialize other sockets **/
 	ServerSocket srvSocket;
-	/** whether or not the client is connected yet **/
-	boolean connected;
+	/** socket between client and server **/
+	Socket socket;
 
-	/** Initialize Server Socket, begin listening for connections **/
+	/** whether or not the client is connected yet **/
+	boolean connected = false;
+	/** true if connection was initialized as the server **/
+	boolean isServer = false;
+	/** true if connection was initialized as the client **/
+	boolean isClient = false;
+
+	/** Initialize Server Socket, begin listening for connections.
+	 * Default port if not specified is 8080.
+	 **/
 	public void initServer()
 	{
-		Thread serverThread = new Thread(new ServerThread());
-		serverThread.start();
-		serverIP = getLocalIpAddress();
+		initServer(-1);
 	}
 
-	/** Initialize Server Socket with specific port, begin listening for connections **/
+	/** Initialize Server Socket with specific port, begin listening for connections
+	 * 
+	 * @param: port - port to be connected to.
+	 **/
 	public void initServer(int port)
 	{
-		serverPort = port;
-		Thread serverThread = new Thread(new ServerThread());
-		serverThread.start();
-		serverIP = getLocalIpAddress();
+		if (!isClient)
+		{
+			isServer = true;
+			userPort = port;
+			serverIP = getLocalIpAddress();
+			Thread serverThread = new Thread(new ServerThread());
+			serverThread.start();
+		}
 	}
 
 	/** Close the Server Socket and end connections **/
 	public void close()
 	{
-		try {
-			srvSocket.close();
-		}
-		catch (Exception e)
+		if (isServer)
 		{
-			//Terminate application if close socket fails
-			System.exit(0);
+			try {
+				in.close();
+				out.close();
+				srvSocket.close();
+				socket.close();
+			}
+			catch (Exception e)
+			{
+				//Terminate application if close socket fails
+				System.exit(0);
+			}
+		}
+		if (isClient)
+		{
+			try {
+				in.close();
+				out.close();
+				socket.close();
+			}
+			catch (Exception e)
+			{
+				//Terminate application if close socket fails
+				System.exit(0);
+			}
 		}
 	}
 
@@ -82,93 +113,92 @@ public class Connect {
 		return serverIP;
 	}
 
-	/** If Server's output stream has been initialized, send "msg" **/
-	public void sendMsgFromServer(String msg)
-	{
-		if (serverOut != null)
-			serverOut.println(msg);
-	}
-
-	/** If Server's input stream has been initialized, read from input stream 
+	/** returns whether or not a connection has been established or not. 
 	 * 
-	 * @return: Return message from Client.
+	 * @return: returns true if connection has been established,
+	 * false if not. 
 	 * **/
-	public String getMsgToServer()
+	public boolean isConnected()
 	{
-		try {
-			String fromClient = serverIn.readLine();
-			final String returnValue = fromClient;
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			//return null if no message found
-			return null;
-		}
+		return connected;
 	}
 
 	/** Initialize Client Socket, attempt to connect to give IP address "ip" 
 	 * 
 	 * @return: true if initialization succeeds, false if initializations fails
-	 * **/
+	 * 
+	 * @param: ip - the IP Address to be connected to.
+	 **/
 	public boolean initClient(String ip)
 	{
-		if (!connected) {
-
-			serverIP = ip;
-			if (!ip.equals("")) {
-				Thread cThread = new Thread(new ClientThread());
-				cThread.start();
-			}
-
-			return true;
-		} else
-			return false;
+		return initClient(ip, -1);
 	}
 
 	/** Initialize Client Socket, attempt to connect to give IP address "ip" 
 	 * 
 	 * @return: true if initialization succeeds, false if initializations fails
-	 * **/
+	 * 
+	 * @param: ip - the IP Address to be connected to.
+	 * port - the port number to be connected to.
+	 **/
 	public boolean initClient(String ip, int port)
 	{
-		if (!connected) {
+		if (!isServer)
+		{
+			isClient = true;
+			if (!connected) {
 
-			serverIP = ip;
-			serverPort = port;
-			if (!ip.equals("")) {
-				Thread cThread = new Thread(new ClientThread());
-				cThread.start();
+				serverIP = ip;
+				userPort = port;
+				if (!ip.equals("")) {
+					Thread cThread = new Thread(new ClientThread());
+					cThread.start();
+				}
 			}
 
-			return true;
-		} else
-			return false;
+			if (connected)
+				return false;
+			else
+				return true;
+		}
+
+		return false;
 	}
 
-	/** If Client's output stream has been initialized, send "msg" **/
-	public void sendMsgFromClient(String msg)
-	{
-		if (clientOut != null)
-			clientOut.println(msg);
-	}
 
-	/** If Server's input stream has been initialized, read from input stream 
+	/** If the output stream has been initialized, 
+	 * send "msg" to the other side of the connection. 
 	 * 
-	 * @return: Return message from Client.
+	 * @param: msg - the message to be sent.
 	 * **/
-	public String getMsgToClient()
+	public void sendMsg(String msg)
 	{
-		try {
-			String fromServer = clientIn.readLine();
-			final String returnValue = fromServer;
-
-			return returnValue;
-		}
-		catch (Exception e) {
-			return null;
-		}
+		if (out != null)
+			out.println(msg);
 	}
+
+	/** If the input stream has been initialized, read from input stream
+	 * and return the result 
+	 * 
+	 * @return: Return message from other end of connection.
+	 * 
+	 * **/
+	public String getMsg()
+	{
+		if (in != null)
+		{
+			try {
+				return in.readLine();
+			}
+			catch (Exception e) {
+				//return null if no message found
+				return null;
+			}
+		}
+		else 
+			return null;
+	}
+
 
 	/** Function to find phone's IP Address **/
 	private String getLocalIpAddress() {
@@ -185,7 +215,7 @@ public class Connect {
 				}
 			}
 		} catch (SocketException ex) {
-			// Log.e("Start", ex.toString());
+			Log.e("Connect", ex.toString());
 		}
 		return null;
 	}
@@ -197,8 +227,8 @@ public class Connect {
 				if (serverIP != null) {
 
 					//check if a specific port was defined
-					if (serverPort != 0)
-						srvSocket = new ServerSocket(serverPort);
+					if (userPort != -1)
+						srvSocket = new ServerSocket(userPort);
 					//else, open server socket with default port
 					else
 						srvSocket = new ServerSocket(SERVERPORT);
@@ -206,15 +236,19 @@ public class Connect {
 
 					while (true) {
 						//begin listening, accept when it comes
-						Socket client = srvSocket.accept();
+						socket = srvSocket.accept();
 
-						//init I/O streams
+						if (socket != null)
+							connected = true;
+
+						//initialize I/O streams
 						try {
 							//initialize server input stream
-							serverIn = new BufferedReader(new InputStreamReader(client.getInputStream()));
+							in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 							//initialize server output stream
 							// set true, for auto-flushing after print statements
-							serverOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true);
+							out = new PrintWriter(new BufferedWriter(
+									new OutputStreamWriter(socket.getOutputStream())), true);
 
 							break;
 						} catch (Exception e) {
@@ -223,7 +257,7 @@ public class Connect {
 						}
 					}
 				} else {
-
+					Log.e("Connect", "Null Server IP Address");
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -237,26 +271,29 @@ public class Connect {
 			try {
 				//only try if not already connected
 				if (!connected) {
-					Socket server;
 					InetAddress serverAddr = InetAddress.getByName(serverIP);
 
 					//try to connect to a specific port, if given
-					if (serverPort != 0)
-						server = new Socket(serverAddr, serverPort);
+					if (userPort != -1)
+						socket = new Socket(serverAddr, userPort);
 					//else, open socket with default port
 					else
-						server = new Socket(serverAddr, SERVERPORT);
+						socket = new Socket(serverAddr, SERVERPORT);
 
-					if (server != null)
+					if (socket != null)
 						connected = true;
 
 					while (connected) {
 						try {
 							//initialize client input stream
-							clientIn = new BufferedReader(new InputStreamReader(server.getInputStream()));
+							in = new BufferedReader(
+									new InputStreamReader(socket.getInputStream()));
 							//initialize client output stream
 							// set true, for auto-flushing after print statements
-							clientOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(server.getOutputStream())), true);
+							out = new PrintWriter(new BufferedWriter(
+									new OutputStreamWriter(socket.getOutputStream())), true);
+
+							break;
 						} catch (Exception e) {
 							e.printStackTrace();
 						}

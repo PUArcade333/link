@@ -33,8 +33,8 @@ public class ConnectFourTileView extends View {
 	protected static int yOffset;
 	protected static int barOffset;
 	protected static int headOffset;
-	
-	
+
+
 	/**
 	 * A hash that maps integer handles specified by the subclasser to the
 	 * drawable that will be used for that reference
@@ -57,7 +57,7 @@ public class ConnectFourTileView extends View {
 	public ConnectFourTileView (Context context, AttributeSet attrs) {
 		this(context, attrs, 0);
 	}	
-	
+
 	public ConnectFourTileView (Context context, AttributeSet attrs, int defStyle) {
 		super(context, attrs, defStyle);
 		DisplayMetrics display = getResources().getDisplayMetrics();
@@ -68,19 +68,19 @@ public class ConnectFourTileView extends View {
 		xDimensions = w;
 		yDimensions = h;
 		headOffset = 200;
-		
+
 		switch (display.densityDpi) {
-        case DisplayMetrics.DENSITY_HIGH:
-        	barOffset = 48;
-            break;
-        case DisplayMetrics.DENSITY_MEDIUM:
-        	barOffset = 36;
-            break;
-        case DisplayMetrics.DENSITY_LOW:
-        	barOffset = 24;
-            break;
-        default:
-        	barOffset = 0;	
+		case DisplayMetrics.DENSITY_HIGH:
+			barOffset = 48;
+			break;
+		case DisplayMetrics.DENSITY_MEDIUM:
+			barOffset = 36;
+			break;
+		case DisplayMetrics.DENSITY_LOW:
+			barOffset = 24;
+			break;
+		default:
+			barOffset = 0;	
 		}
 	}
 

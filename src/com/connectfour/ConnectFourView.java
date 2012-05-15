@@ -24,9 +24,9 @@ public class ConnectFourView extends ConnectFourTileView {
 	/**
 	 * Labels for the drawables that will be loaded into the TileView class
 	 */
-	public final int BACK = 1;
-	public final int RED = 2;
-	public final int YELLOW = 3;
+	public final static int BACK = 1;
+	public final static int RED = 2;
+	public final static int GREEN = 3;
 
 	private static final long mDelay = 50;
 
@@ -42,17 +42,17 @@ public class ConnectFourView extends ConnectFourTileView {
 	private TextView mStatusText;
 
 	private int[][] board;
-	
+
 	private static boolean gameover = false;
-//	private static int mode;
+	//	private static int mode;
 	private static boolean turn;
 	private static int lastX = 0;
 	private static int lastY = 0;
 	private static int winner = 0;
-	
-	
-	
-	
+
+
+
+
 	/**
 	 * Create a simple handler that we can use to cause animation to happen. We
 	 * set ourselves as a target and we can use the sleep() function to cause an
@@ -73,7 +73,7 @@ public class ConnectFourView extends ConnectFourTileView {
 			sendMessageDelayed(obtainMessage(0), delayMillis);
 		}
 	};
-	
+
 	/**
 	 * Constructs a ConnectFourView based on inflation from XML
 	 * 
@@ -104,8 +104,8 @@ public class ConnectFourView extends ConnectFourTileView {
 
 		resetTiles(4);
 		loadTile(BACK, r.getDrawable(R.drawable.back));
-		loadTile(RED, r.getDrawable(R.drawable.red));
-		loadTile(YELLOW, r.getDrawable(R.drawable.yellow));
+		loadTile(RED, r.getDrawable(R.drawable.acorn_bomb));
+		loadTile(GREEN, r.getDrawable(R.drawable.acorn_cut));
 
 		board = new int[xTileNum][yTileNum];
 
@@ -124,29 +124,22 @@ public class ConnectFourView extends ConnectFourTileView {
 		mStatusText = newView;
 	}
 
-    public void setText(String str) {
-        mStatusText.setText(str);
-    }	
-
-    public void setTurn(boolean newTurn) {
-        turn = newTurn;
-    }	
-
-    public boolean getTurn() {
-        return turn;
-    }	
-
-	/**
-	 * Updates the current mode of the application (RUNNING or PAUSED or the
-	 * like) as well as sets the visibility of textview for notification
-	 * 
-	 * @param newMode
-	 */
-	public void setMode(int newMode) {
-//		int oldMode = mMode;
-		
+	public void setTextVisibility(int visibility) {
+		mStatusText.setVisibility(visibility);
 	}
 	
+	public void setText(String str) {
+		mStatusText.setText(str);
+	}	
+
+	public void setTurn(boolean newTurn) {
+		turn = newTurn;
+	}	
+
+	public boolean getTurn() {
+		return turn;
+	}	
+
 	/**
 	 * Draw stuff
 	 * 
@@ -159,11 +152,11 @@ public class ConnectFourView extends ConnectFourTileView {
 				else if (board[x][y] == 1)
 					setTile(RED, x, y);
 				else if (board[x][y] == 2)
-					setTile(YELLOW, x, y);
+					setTile(GREEN, x, y);
 			}
 		}
 	}
-	
+
 	/**
 	 * Handles the basic update loop, checking to see if we are in the running
 	 * state, determining if a move should be made, updating the Tetris's
@@ -173,7 +166,7 @@ public class ConnectFourView extends ConnectFourTileView {
 		if (!gameover)
 		{
 			long now = System.currentTimeMillis();
-	
+
 			if (now - mLastMove > mDelay) {
 				clearTiles();
 				draw();
@@ -182,7 +175,7 @@ public class ConnectFourView extends ConnectFourTileView {
 		}
 		mRefreshHandler.sleep(50);
 	}
-	
+
 	public boolean touch(double x, double y)
 	{
 		if (turn && !gameover)
@@ -191,13 +184,13 @@ public class ConnectFourView extends ConnectFourTileView {
 			int xTile = (int) (((x - xOffset) / mTileSize));
 			int yTile = (int) (((y - yOffset - barOffset) / mTileSize));
 
-//			Log.d("XY", xTile + " " + yTile);
-			
+			//			Log.d("XY", xTile + " " + yTile);
+
 			while (checkTile(xTile, yBlock))
 				yBlock--;
-				
+
 			yTile = yBlock;
-			
+
 			if (xTile >= xTileNum || xTile < 0)
 			{
 				Log.d("X", "ERROR");
@@ -208,18 +201,19 @@ public class ConnectFourView extends ConnectFourTileView {
 				Log.d("Y", "ERROR");
 				return false;
 			}
-			
-			
+
 			lastX = xTile;
 			lastY = yTile;
 			if(!checkTile(xTile, yTile))
 			{
 				setTile(RED, xTile, yTile);
 				board[xTile][yTile] = (RED - 1);
-				
+
 				turn = false;
 				winner = checkGameOver();
 				update();
+
+				setText("Waiting for opponent's move.");
 				
 				return true;
 			}
@@ -228,9 +222,9 @@ public class ConnectFourView extends ConnectFourTileView {
 		}
 		else 
 			return false;
-		
+
 	}
-	
+
 	private int checkGameOver()
 	{
 		for (int color = RED; color < 4; color++)
@@ -266,7 +260,7 @@ public class ConnectFourView extends ConnectFourTileView {
 					}
 				}
 			}
-			
+
 			//diagonals like a \
 			for (int x = 0; x < (xTileNum - 3); x++)
 			{
@@ -283,7 +277,7 @@ public class ConnectFourView extends ConnectFourTileView {
 
 				}
 			}
-			
+
 			//diagonals like a /
 			for (int x = xTileNum - 1; x > 2; x--)
 			{
@@ -300,24 +294,24 @@ public class ConnectFourView extends ConnectFourTileView {
 
 				}
 			}
-			
+
 		}
-		
+
 
 		//no victory
 		return 0;
 	}
-	
+
 	public boolean getGameOver()
 	{
 		return gameover;
 	}
-	
+
 	public int getWinner()
 	{
 		return winner;
 	}
-	
+
 	public boolean checkTile(int x, int y)
 	{
 		if (x < 0 || x >= xTileNum)
@@ -327,14 +321,14 @@ public class ConnectFourView extends ConnectFourTileView {
 
 		if(board[x][y] > 0)
 			return true;
-		
+
 		return false;
 	}
-	
+
 	public void setTileMarked(int color, int x, int y)
 	{
 		setTile(color, x, y);
-		board[x][y] = (YELLOW - 1);
+		board[x][y] = (GREEN - 1);
 		winner = checkGameOver();
 	}
 
@@ -342,10 +336,10 @@ public class ConnectFourView extends ConnectFourTileView {
 	{
 		return lastX;
 	}
-	
+
 	public int getLastY()
 	{
 		return lastY;
 	}
-	
+
 }

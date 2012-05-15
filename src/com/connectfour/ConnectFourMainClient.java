@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
 import android.view.GestureDetector;
 import android.view.GestureDetector.OnGestureListener;
 import android.view.MotionEvent;
@@ -13,28 +12,23 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.link.*;
+import com.link.R;
 
 public class ConnectFourMainClient extends Activity implements OnGestureListener {
 
 	Connect connect = new Connect();
+	Connect connect2 = new Connect();
 
 	ConnectFourView myConnectFour;
 
-	//	private int testCount = 0;
-
 	TextView text;
-
-	private Button serverButton;
+	ImageButton instructions;
+	
 	private Button clientButton;
-	private Button connectButton;
 	private Button cancelButton;
-	private boolean serverSide = false;
-	private boolean clientSide = false;
-	private EditText serverIp;
 	private boolean connected = false;
 
 	private String opponentip = "";
@@ -44,8 +38,6 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 	private boolean ready2 = false;
 
 	private boolean gameover = false;
-
-	//	private Button checkButton;
 
 
 	private GestureDetector gestureScanner;
@@ -62,17 +54,10 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 		@Override
 		public void handleMessage(Message msg) {
 			myConnectFour.update();
-			if(serverSide)
-			{
-				connect.sendMsgFromServer(" ");
-			}
-			if(clientSide)
-			{
-				connect.sendMsgFromClient(" ");
-			}
 
-			checker();
-
+			if(connect2 != null)
+				connect2.sendMsg(" ");
+			checkInput();
 		}
 
 		public void sleep(long delayMillis) {
@@ -125,24 +110,14 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 				myConnectFour.update();
 				if(myConnectFour.touch(e.getX(), e.getY()))
 				{
-					myConnectFour.setText("Waiting for opponent's move.");
-
-					if (serverSide)
-					{
-						connect.sendMsgFromServer("" + myConnectFour.getLastX());
-						connect.sendMsgFromServer("" + myConnectFour.getLastY());
-					}
-					if (clientSide)
-					{
-						connect.sendMsgFromClient("" + myConnectFour.getLastX());
-						connect.sendMsgFromClient("" + myConnectFour.getLastY());
-					}
+					connect2.sendMsg("" + myConnectFour.getLastX());
+					connect2.sendMsg("" + myConnectFour.getLastY());
 
 					if(gameover = myConnectFour.getGameOver())
 					{
-						if (myConnectFour.getWinner() == myConnectFour.RED)
+						if (myConnectFour.getWinner() == ConnectFourView.RED)
 							myConnectFour.setText("Game Over: You win");
-						else if (myConnectFour.getWinner() == myConnectFour.YELLOW)
+						else if (myConnectFour.getWinner() == ConnectFourView.GREEN)
 							myConnectFour.setText("Game Over: You lose");
 					}
 
@@ -150,10 +125,6 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 
 				}				
 			}
-			//			mRefreshHandler.sleep(50);
-
-			//			else
-			//				checker();
 		}
 
 		return true;
@@ -164,35 +135,17 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 		{
 			if (input != null)
 			{
-				if (serverSide)
+				int x = Integer.parseInt(input);
+				String yString = " ";
+				while (yString.equals(" "))
+					yString = connect2.getMsg();
+
+				int y = Integer.parseInt(yString);
+
+				if (!myConnectFour.checkTile(x, y))
 				{
-					int x = Integer.parseInt(input);
-					String yString = " ";
-					while (yString.equals(" "))
-						yString = connect.getMsgToServer();
-
-					int y = Integer.parseInt(yString);
-
-					if (!myConnectFour.checkTile(x, y))
-					{
-						myConnectFour.setTileMarked(3, x, y);
-						myConnectFour.setText("Your move.");
-					}
-				}
-				else if (clientSide)
-				{
-					int x = Integer.parseInt(input);
-					String yString = " ";
-					while (yString.equals(" "))
-						yString = connect.getMsgToClient();
-
-					int y = Integer.parseInt(yString);
-
-					if (!myConnectFour.checkTile(x, y))
-					{
-						myConnectFour.setTileMarked(3, x, y);
-						myConnectFour.setText("Your move.");
-					}
+					myConnectFour.setTileMarked(ConnectFourView.GREEN, x, y);
+					myConnectFour.setText("Your move.");
 				}
 			}
 		}
@@ -202,7 +155,7 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		
+
 		gestureScanner = new GestureDetector(this);
 
 		// remove title bar
@@ -210,85 +163,72 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 
 		setContentView(R.layout.client2);
 		text = (TextView) findViewById(R.id.client_text);
+		clientButton = (Button) findViewById(R.id.client_challenge);
+		clientButton.setOnClickListener(challenge);
 		cancelButton = (Button) findViewById(R.id.client_cancel);
 		cancelButton.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				if (connect != null)
+					connect.close();
 				Intent resultIntent = new Intent();
-		    	setResult(Activity.RESULT_OK, resultIntent);
-		        finish();
+				setResult(Activity.RESULT_OK, resultIntent);
+				finish();
 			}
 		});
 		// get server ip to connect to
 		Bundle extras = getIntent().getExtras();
-		if(extras !=null) {
-			opponentip = extras.getString("opponentip");
+		if(extras != null) {
+			opponentip = extras.getString("opip");
 		}
-		if (!connected) {
-			text.setText("Attempting to connect...");
 
+		if (!connected) {
 			if (!opponentip.equals(""))
 			{
 				if(connect.initClient(opponentip))
 				{
 					connected = true;
-					clientSide = true;
-					text.setText("Connected to: " + connect.getServerIP());
 
 					//send challenge
-					connect.sendMsgFromClient("" + com.link.Linker.CONNECT_ID);
+					connect.sendMsg("" + com.link.Linker.CONNECT_ID);
 
-					text.setText("Waiting for response to invitation");
+					//text.setText("Waiting for response to invitation");
 
-					clientButton = (Button) findViewById(R.id.client_start);
-					clientButton.setOnClickListener(check);
 
-					
 					// TODO: set onclick listener
 				}
+				else
+					text.setText("Could not connect to that ip address.");
 			}
 			else
 				text.setText("Client Initialization failed");
 		}
 
-		/*
-		setContentView(R.layout.start);
-		text = (TextView) findViewById(R.id.start_text);
-
-		serverButton = (Button) findViewById(R.id.server);
-		serverButton.setOnClickListener(serverClick);
-		clientButton = (Button) findViewById(R.id.client);
-		clientButton.setOnClickListener(clientClick);
-		 */
 	}
 
 
 
 
-	private OnClickListener check = new OnClickListener() {
+	private OnClickListener challenge = new OnClickListener() {
 		@Override
 		public void onClick(View v) {
 			if (!ready)
 			{
 				ready = true;
 
-				if (serverSide)
-					connect.sendMsgFromServer("ready");
-				else if (clientSide)
-					connect.sendMsgFromClient("ready");
+				connect.sendMsg("" + com.link.Linker.CONNECT_ID);
 			}
 
 			if (!ready2)
 			{
 				String input = "";
 
-				if (serverSide)
-					input = connect.getMsgToServer();
-				else if (clientSide)
-					input = connect.getMsgToClient();
+				if (connect != null)
+					input = connect.getMsg();
+
 
 				if (input == null)
-					Log.d("Error", "Null");
+					return;
 				else if (input.equals("ready"))
 					ready2 = true;
 			}
@@ -297,88 +237,57 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 			{
 				gameStart = true;
 
-				setContentView(R.layout.game);
+				setContentView(R.layout.connectfourgame);
+				instructions = (ImageButton) (findViewById(R.id.connect_instructs));
+				instructions.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						instructions.setVisibility(View.INVISIBLE);
+						myConnectFour = (ConnectFourView) (findViewById(R.id.game));
+						myConnectFour.setTextView((TextView) findViewById(R.id.status));
+						myConnectFour.setVisibility(View.VISIBLE);
+						myConnectFour.setTextVisibility(View.VISIBLE);
+						
+						
+						myConnectFour.setTurn(true);
+						myConnectFour.update();
+						myConnectFour.setTurn(false);
+						myConnectFour.setText("Game Start. Waiting for opponent's move.");
+						myConnectFour.update();
 
-				myConnectFour = (ConnectFourView) (findViewById(R.id.game));
-				myConnectFour.setTextView((TextView) findViewById(R.id.status));
-				//				checkButton = (Button) findViewById(R.id.check_button);
-				//				checkButton.setOnClickListener(click);
-
-				if(serverSide)
-				{
-					myConnectFour.setTurn(true);
-					myConnectFour.setText("Game Start. Your move.");
-				}
-				else
-				{
-					myConnectFour.setTurn(true);
-					myConnectFour.update();
-					myConnectFour.setTurn(false);
-					myConnectFour.setText("Game Start. Waiting for opponent's move.");
-					//					checker();
-				}
-
-				//				checker();
-				mRefreshHandler.sleep(50);
+						connect2.initClient(opponentip);
+						checkInput();
+					}
+				});
 			}
 		}
 	};
 
-	//	private OnClickListener click = new OnClickListener() {
-	//		@Override
-	//		public void onClick(View v) {
-	//			
-	//			checker();
-	//		}
-	//	};
 
-	private void checker()
+	private void checkInput()
 	{
 		if (gameStart && !myConnectFour.getTurn() && !gameover) {
-			text.setText("Waiting for move...");
-
 			String input = "";
 
-			if (serverSide && connect != null)
+			if (connect2 != null)
 			{
-				if((input = connect.getMsgToServer()) != null)
+				input = connect2.getMsg();
+				if((input != null) && !input.equals(" "))
 				{
-					if(!input.equals(" "))
+
+					test(input);
+					myConnectFour.setTurn(true);
+					myConnectFour.setText("Your move.");
+					if(gameover = myConnectFour.getGameOver())
 					{
-						test(input);
-						myConnectFour.setTurn(true);
-						myConnectFour.setText("Your move.");
-						if(gameover = myConnectFour.getGameOver())
-						{
-							if (myConnectFour.getWinner() == myConnectFour.RED)
-								myConnectFour.setText("Game Over: You win");
-							else if (myConnectFour.getWinner() == myConnectFour.YELLOW)
-								myConnectFour.setText("Game Over: You lose");
-						}
+						if (myConnectFour.getWinner() == ConnectFourView.RED)
+							myConnectFour.setText("Game Over: You win");
+						else if (myConnectFour.getWinner() == ConnectFourView.GREEN)
+							myConnectFour.setText("Game Over: You lose");
 					}
 				}
 			}
-			else if (clientSide && connect != null)
-			{
-				if((input = connect.getMsgToClient()) != null)
-				{
-					if(!input.equals(" "))
-					{
-						test(input);
-						myConnectFour.setTurn(true);
-						myConnectFour.setText("Your move.");
-						if(gameover = myConnectFour.getGameOver())
-						{
-							if (myConnectFour.getWinner() == myConnectFour.RED)
-								myConnectFour.setText("Game Over: You win");
-							else if (myConnectFour.getWinner() == myConnectFour.YELLOW)
-								myConnectFour.setText("Game Over: You lose");
-						}
-					}
-				}
-			}
-			mRefreshHandler.sleep(50);
 		}
+		mRefreshHandler.sleep(50);
 	}
 
 	@Override
@@ -387,6 +296,8 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 
 		if (connect != null)
 			connect.close();
+		if (connect2 != null)
+			connect2.close();
 		//System.exit(0);
 	}
 
@@ -396,6 +307,8 @@ public class ConnectFourMainClient extends Activity implements OnGestureListener
 
 		if (connect != null)
 			connect.close();
+		if (connect2 != null)
+			connect2.close();
 		//System.exit(0);
 	}
 

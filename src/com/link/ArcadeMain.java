@@ -29,6 +29,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -66,6 +67,8 @@ public class ArcadeMain extends Activity {
 	private boolean ready = false;
 	private boolean ready2 = false;
 	private boolean gameStart = false;
+	private long lastMove = 0;
+	private long delay = 50;
 	
 	private Connect connect = new Connect();
 	private RefreshHandler mRefreshHandler = new RefreshHandler();
@@ -82,10 +85,14 @@ public class ArcadeMain extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
-        Point size = new Point();
-        getWindowManager().getDefaultDisplay().getSize(size);
-        screen_width = size.x;
-        screen_height = size.y;
+//        Point size = new Point();
+  		DisplayMetrics display = getResources().getDisplayMetrics();
+//        getWindowManager().getDefaultDisplay().getSize(size);
+//        screen_width = size.x;
+//        screen_height = size.y;
+        screen_width = display.widthPixels;
+        screen_height = display.heightPixels;
+        
     }
     // encode password using md5
     private String encodePassword(String pass) {
@@ -509,7 +516,7 @@ public class ArcadeMain extends Activity {
                                 // TODO: fix challenge
                 		        Intent myIntent = new Intent(ArcadeMain.this, MultiplayerLinker.class);
                 		        myIntent.putExtra("netid", getMyNetid());
-                		        myIntent.putExtra("opponentip", ""); // TODO: fix this
+                		        myIntent.putExtra("opponentip", u.getIP()); // TODO: fix this
                 		        ArcadeMain.this.startActivityForResult(myIntent, -2);
                 		        pw.dismiss();
                             }
@@ -653,64 +660,101 @@ public class ArcadeMain extends Activity {
     	super.onStop();
     }
     
-    class RefreshHandler extends Handler {
+ 	class RefreshHandler extends Handler {
 
-    	@Override
-    	public void handleMessage(Message msg) {
-//    		connect.sendMsgFromServer(" ");
-  
+		@Override
+		public void handleMessage(Message msg) {
+
+			String input = "";
+			if (connect != null) 
+			{
+				if (!gameStart) 
+				{
+					long now = System.currentTimeMillis();
+
+					if (now - lastMove > delay) 
+					{
+						input = connect.getMsg();
+						if (input != null)
+						{
+							System.out.println("MSG: " + input);
+							accept(input);
+						}
+
+						lastMove = now;
+					}
+					mRefreshHandler.sleep(delay);
+				}
+			}
+
 			if (ready && ready2 && !gameStart)
 			{
 				gameStart = true;
-
-				//start activity for server side of the game (challenged person)
-				
-//				setContentView(R.layout.game);
-//
-//				myConnectFour = (ConnectFourView) (findViewById(R.id.game));
-//				myConnectFour.setTextView((TextView) findViewById(R.id.status));
-////				checkButton = (Button) findViewById(R.id.check_button);
-////				checkButton.setOnClickListener(click);
-//				
-//				myConnectFour.setTurn(true);
-//				myConnectFour.setText("Game Start. Your move.");
-				
-//				checker();
-//				mRefreshHandler.sleep(50);
 			}
 
-    	}
-
-    	public void sleep(long delayMillis) {
-    		this.removeMessages(0);
-    		sendMessageDelayed(obtainMessage(0), delayMillis);
-    	}
-    };
-    
-    private void accept ()
-    {
-		if (!ready)
-		{
-			ready = true;
-			connect.sendMsgFromServer("ready");
 		}
-		
+
+		public void sleep(long delayMillis) {
+			this.removeMessages(0);
+			sendMessageDelayed(obtainMessage(0), delayMillis);
+		}
+	};
+
+	private void accept (String input)
+	{
+		Log.d("Lobby", "ACCEPT: " + input);
+
 		if (!ready2)
 		{
-			String input = "";
-			input = connect.getMsgToServer();
-
 			if (input == null) {
 				Log.d("Error", "Null");
 			} else if (input.equals("" + com.link.Linker.CONNECT_ID)) {
-				ready2 = true;
-				setActivity("Playing Connect Four");
-		        Intent myIntent = new Intent(ArcadeMain.this, com.connectfour.ConnectFourMainServer.class);
-		        ArcadeMain.this.startActivityForResult(myIntent, com.link.Linker.CONNECT_ID);
+				Log.d("Lobby", "Got challenge to play connect4");
+				gameStart = true;
+
+				LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+				View pview = inflater.inflate(R.layout.lobby_accept, null, false);
+				final PopupWindow pw = new PopupWindow(pview,300,300, true);
+				pw.setBackgroundDrawable(new BitmapDrawable());
+				pw.showAtLocation(findViewById(R.id.lv_lobby), Gravity.CENTER, 0, 0);
+
+				Log.d("Lobby", "?");
+				
+				Button accept = (Button) pview.findViewById(R.id.lobby_accept);
+				accept.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						if (!ready)
+						{
+							ready = true;
+							connect.sendMsg("ready");
+						}
+
+
+						ready2 = true;
+						gameStart = true;
+						setActivity("Playing Connect Four");
+
+						connect.close();
+						Intent myIntent = new Intent(ArcadeMain.this, com.connectfour.ConnectFourMainServer.class);
+						ArcadeMain.this.startActivityForResult(myIntent, com.link.Linker.CONNECT_ID);
+						pw.dismiss();
+					}
+				});
+
+				Button decline = (Button) pview.findViewById(R.id.lobby_decline);
+				decline.setOnClickListener(new OnClickListener() {
+					public void onClick(View v) {
+						connect.sendMsg("decline");
+						gameStart = false;
+						pw.dismiss();
+					}
+				});
 			}
 		}
 
-    }
+	}
+	
     class User {
         private String username;
         private String status;

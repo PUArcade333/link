@@ -41,11 +41,13 @@ public class MultiplayerLinker extends Activity {
 	private final int TD_ID = 2;
 	private final int TABLES_ID = 3;
 	private final int CONNECT_ID = 4;
+	private final int MULTICONNECT_ID = 6;
 	
 	private final int NUM_GAMES = 5;
 	
 	private Button button_squirrel;
 	private Button button_snake;
+	private Button button_connect4;
 	private Button button_lobby;
 	
 	private String netid = "";
@@ -59,24 +61,25 @@ public class MultiplayerLinker extends Activity {
         setContentView(R.layout.multiplayermenu);
         
         Bundle extras = getIntent().getExtras();
-		if(extras !=null)
+		if(extras != null)
 		{
 			netid = extras.getString("netid");
 			opponentip = extras.getString("opponentip");
 		}
+		
 		myip = getLocalIpAddress();
+		System.out.println("Multilinker id: " + netid + " ip: " + opponentip + " myip: " + myip);
 		setActivity("In Multiplayer Game Select");
 		
-        button_squirrel = (Button) findViewById(R.id.start_connectfour);
-        button_squirrel.setOnClickListener(new OnClickListener() {
+        button_connect4 = (Button) findViewById(R.id.start_connectfour);
+        button_connect4.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				setActivity("Playing Connect Four");
 				// TODO: sending the challenge
 		        Intent myIntent = new Intent(MultiplayerLinker.this, com.connectfour.ConnectFourMainClient.class);
+		        myIntent.putExtra("opip", opponentip);
 		        MultiplayerLinker.this.startActivityForResult(myIntent, CONNECT_ID);
-		        myIntent.putExtra("opponentip", opponentip);
-		        
 			}
 		});
 		

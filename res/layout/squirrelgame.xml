@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    
+    android:background="@drawable/main_background"
+    android:layout_height="match_parent" >
+
     <com.squirrel.SquirrelView
         android:id="@+id/game"
         android:layout_width="wrap_content"
@@ -17,5 +18,45 @@
         android:textColor="#ffffff"
         android:textSize="24sp"
         android:visibility="visible" />
-    
+
+    <ImageButton
+        android:id="@+id/squirrel_instructs"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:contentDescription="Squirrel Hunt"
+        android:src="@drawable/squirrel_inst"
+        android:visibility="visible" />
+
+    <Button
+        android:id="@+id/squirrel_easy"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/gametext"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="72dp"
+        android:text="Easy Mode"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/squirrel_medium"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/squirrel_easy"
+        android:layout_below="@+id/squirrel_easy"
+        android:layout_marginTop="36dp"
+        android:text="Medium Mode"
+        android:visibility="invisible" />
+
+    <Button
+        android:id="@+id/squirrel_hard"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/squirrel_medium"
+        android:layout_below="@+id/squirrel_medium"
+        android:layout_marginTop="36dp"
+        android:text="Hard Mode"
+        android:visibility="invisible" />
+
 </RelativeLayout>
