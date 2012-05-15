@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,13 +48,16 @@ import java.security.*;
 
 import com.connectfour.Connect;
 
-public class HelloAndroid extends Activity {
-	private static final String TAG = HelloAndroid.class.getSimpleName();
+public class ArcadeMain extends Activity {
+	private static final String TAG = ArcadeMain.class.getSimpleName();
 	private static final String AUTHCODE = "cos333"; // authentication code to send to PHP for verification of source
 	private final String loginurl = "http://webscript.princeton.edu/~pcao/cos333/dologin.php";
 	private final String registerurl = "http://webscript.princeton.edu/~pcao/cos333/doregister.php";
 	private final String updateactivityurl = "http://webscript.princeton.edu/~pcao/cos333/updateactivity.php";
 	private final String getlobbyurl = "http://webscript.princeton.edu/~pcao/cos333/getlobby.php";
+	
+	private int screen_width;
+	private int screen_height;
 	
 	private static final String md5salt = "cos333-salt";
 	
@@ -77,6 +81,11 @@ public class HelloAndroid extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        
+        Point size = new Point();
+        getWindowManager().getDefaultDisplay().getSize(size);
+        screen_width = size.x;
+        screen_height = size.y;
     }
     // encode password using md5
     private String encodePassword(String pass) {
@@ -470,7 +479,7 @@ public class HelloAndroid extends Activity {
     			ip[i] = lobbydata[i*3+2];
     		}
     		userList = new ArrayList<User>();
-
+    		
             for (int i = 0; i < netid.length; i++) {
                 userList.add(new User(netid[i], status[i], ip[i]));
             }
@@ -487,7 +496,7 @@ public class HelloAndroid extends Activity {
                         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                        
                         View pview = inflater.inflate(R.layout.lobby_connect, null, false);
-                        final PopupWindow pw = new PopupWindow(pview,200,200, true);
+                        final PopupWindow pw = new PopupWindow(pview,screen_width,screen_height, true);
                         pw.setBackgroundDrawable(new BitmapDrawable());
                         pw.showAtLocation(findViewById(R.id.lv_lobby), Gravity.CENTER, 0, 0);
                      
@@ -498,10 +507,10 @@ public class HelloAndroid extends Activity {
                                 User u = userList.get(position);
                                 System.out.println("user: " + u.getName() + " status: " + u.getStatus() + " ip: " + u.getIP());
                                 // TODO: fix challenge
-                		        Intent myIntent = new Intent(HelloAndroid.this, MultiplayerLinker.class);
+                		        Intent myIntent = new Intent(ArcadeMain.this, MultiplayerLinker.class);
                 		        myIntent.putExtra("netid", getMyNetid());
                 		        myIntent.putExtra("opponentip", ""); // TODO: fix this
-                		        HelloAndroid.this.startActivityForResult(myIntent, -2);
+                		        ArcadeMain.this.startActivityForResult(myIntent, -2);
                 		        pw.dismiss();
                             }
                         });
@@ -544,9 +553,9 @@ public class HelloAndroid extends Activity {
         final Button startgames = (Button) findViewById(R.id.startgames);
         startgames.setOnClickListener(new View.OnClickListener() {
 			public void onClick(View v) {
-		        Intent myIntent = new Intent(HelloAndroid.this, Linker.class);
+		        Intent myIntent = new Intent(ArcadeMain.this, Linker.class);
 		        myIntent.putExtra("netid", netid);
-		        HelloAndroid.this.startActivityForResult(myIntent, -1);
+		        ArcadeMain.this.startActivityForResult(myIntent, -1);
 		    }
 		});
         
@@ -696,8 +705,8 @@ public class HelloAndroid extends Activity {
 			} else if (input.equals("" + com.link.Linker.CONNECT_ID)) {
 				ready2 = true;
 				setActivity("Playing Connect Four");
-		        Intent myIntent = new Intent(HelloAndroid.this, com.connectfour.ConnectFourMainServer.class);
-		        HelloAndroid.this.startActivityForResult(myIntent, com.link.Linker.CONNECT_ID);
+		        Intent myIntent = new Intent(ArcadeMain.this, com.connectfour.ConnectFourMainServer.class);
+		        ArcadeMain.this.startActivityForResult(myIntent, com.link.Linker.CONNECT_ID);
 			}
 		}
 

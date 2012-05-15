@@ -15,8 +15,8 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 
-import com.link.HelloAndroid.User;
-import com.link.HelloAndroid.UserAdapter;
+import com.link.ArcadeMain.User;
+import com.link.ArcadeMain.UserAdapter;
 
 import android.app.Activity;
 import android.app.TabActivity;

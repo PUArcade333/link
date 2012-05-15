@@ -2,39 +2,50 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/main_background"
     android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/start_snake"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-      
-        android:text="Snake" />
+        android:layout_weight="0.99"
+        android:orientation="vertical" >
 
-    <Button
-        android:id="@+id/start_squirrel"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/start_snake"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Snake" />
 
-        android:text="Squirrel Hunt" />
-    
-    <Button
-        android:id="@+id/start_princetontd"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/start_squirrel"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Squirrel Hunt" />
 
-        android:text="Tower Defense" />
-	<Button
-        android:id="@+id/view_highscores"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
+        <Button
+            android:id="@+id/start_princetontd"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Tower Defense" />
+    </LinearLayout>
 
-        android:text="View High Scores" />
-    
-    <Button
-        android:id="@+id/returntolobby"
-        android:layout_width="fill_parent"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Back to Lobby" />
+        android:orientation="vertical" >
+
+        <Button
+            android:id="@+id/view_highscores"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="View High Scores" />
+
+        <Button
+            android:id="@+id/returntolobby"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="Back to Lobby" />
+    </LinearLayout>
 
 </LinearLayout>
